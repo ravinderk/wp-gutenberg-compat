@@ -1,6 +1,352 @@
 {
-  "generated": null,
-  "lastGutenbergTag": null,
-  "wpGutenbergMap": {},
-  "packages": {}
+  "generated": "2026-03-17T15:26:56.470Z",
+  "lastGutenbergTag": "v21.9.0",
+  "wpGutenbergMap": {
+    "6.9": "21.9",
+    "6.8": "20.4",
+    "6.7": "19.3",
+    "6.6": "18.5",
+    "6.5": "17.7",
+    "6.4": "16.7"
+  },
+  "packages": {
+    "@wordpress/icons": {
+      "11.0.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "10.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "10.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "10.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "9.42.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "9.33.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/blocks": {
+      "15.6.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "14.8.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "13.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "13.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "12.28.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "12.19.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/element": {
+      "6.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "6.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "6.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "6.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "5.28.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "5.19.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/hooks": {
+      "4.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "4.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "4.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "4.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "3.51.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "3.42.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/compose": {
+      "7.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "7.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "7.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "7.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "6.28.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "6.19.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/primitives": {
+      "4.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "4.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "4.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "4.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "3.49.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "3.40.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/components": {
+      "30.6.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "29.5.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "28.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "28.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "26.0.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "25.8.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/block-editor": {
+      "15.6.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "14.14.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "14.3.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "13.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "12.19.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "12.10.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/i18n": {
+      "6.6.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "5.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "5.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "5.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "4.51.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "4.42.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/data": {
+      "10.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "10.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "10.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "10.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "9.21.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "9.12.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/core-data": {
+      "7.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "7.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "7.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "7.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "6.28.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "6.19.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/notices": {
+      "5.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "5.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "5.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "5.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "4.19.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "4.10.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    },
+    "@wordpress/api-fetch": {
+      "7.33.0": {
+        "gutenberg": "21.9",
+        "wordpress": "6.9"
+      },
+      "7.19.0": {
+        "gutenberg": "20.4",
+        "wordpress": "6.8"
+      },
+      "7.8.0": {
+        "gutenberg": "19.3",
+        "wordpress": "6.7"
+      },
+      "7.0.0": {
+        "gutenberg": "18.5",
+        "wordpress": "6.6"
+      },
+      "6.48.0": {
+        "gutenberg": "17.7",
+        "wordpress": "6.5"
+      },
+      "6.39.0": {
+        "gutenberg": "16.7",
+        "wordpress": "6.4"
+      }
+    }
+  }
 }
