@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+packages/eslint-plugin/src/data/compat-data.json
+scripts/wp-gb-map.json
+package-lock.json

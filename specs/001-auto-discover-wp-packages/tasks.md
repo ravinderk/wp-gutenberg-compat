@@ -1,8 +1,8 @@
 ---
-feature: "001-auto-discover-wp-packages"
-spec: "./spec.md"
-plan: "./plan.md"
-created: "2025-07-14"
+feature: '001-auto-discover-wp-packages'
+spec: './spec.md'
+plan: './plan.md'
+created: '2025-07-14'
 ---
 
 # Tasks: Auto-Discover WordPress Packages (001)
@@ -12,6 +12,7 @@ created: "2025-07-14"
 
 **Tech stack**: JavaScript (ESM), Node.js ≥ 18, Vitest 3.x, ESLint `RuleTester`  
 **Target files**:
+
 - `packages/eslint-plugin/src/utils/discover-wp-packages.js` ← **new**
 - `packages/eslint-plugin/tests/discover-wp-packages.test.js` ← **new**
 - `packages/eslint-plugin/src/rules/no-incompatible-version.js` ← **modified**
@@ -49,15 +50,15 @@ created: "2025-07-14"
 ### Tests for User Story 1
 
 - [ ] T004 [P] [US1] Add US1 happy-path unit tests to `packages/eslint-plugin/tests/discover-wp-packages.test.js`:
-  - valid `package.json` with `@wordpress/components` in `dependencies` only → returns `['@wordpress/components']`
-  - valid `package.json` with both `@wordpress/components` and `react` in `dependencies` → returns only `['@wordpress/components']`
-  - valid `package.json` with zero `@wordpress/*` entries → returns `[]`
-  - valid `package.json` with empty `dependencies: {}` and no `devDependencies` key → returns `[]`
+    - valid `package.json` with `@wordpress/components` in `dependencies` only → returns `['@wordpress/components']`
+    - valid `package.json` with both `@wordpress/components` and `react` in `dependencies` → returns only `['@wordpress/components']`
+    - valid `package.json` with zero `@wordpress/*` entries → returns `[]`
+    - valid `package.json` with empty `dependencies: {}` and no `devDependencies` key → returns `[]`
 
 - [ ] T005 [P] [US1] Add US1 integration test cases to `packages/eslint-plugin/tests/no-incompatible-version.test.js`:
-  - **Invalid**: write `package.json` with `@wordpress/components` in `dependencies` (installed version 28.0.0, requires WP 6.8) to `fixtureDir`; lint a file that does NOT import it; `filename` set to `path.join(fixtureDir, 'test-file.js')`; `requiresAtLeast: '6.5'` → expect one error with `messageId: 'incompatibleInstalled'` on the `Program` node, message mentions package name and required WP version
-  - **Valid**: same setup but `requiresAtLeast: '6.8'` (requirement met) → no errors
-  - **Invalid (dedup)**: same setup but the file ALSO imports `@wordpress/components` → expect exactly one error with `messageId: 'incompatible'` on the `ImportDeclaration` node, zero errors with `messageId: 'incompatibleInstalled'`
+    - **Invalid**: write `package.json` with `@wordpress/components` in `dependencies` (installed version 28.0.0, requires WP 6.8) to `fixtureDir`; lint a file that does NOT import it; `filename` set to `path.join(fixtureDir, 'test-file.js')`; `requiresAtLeast: '6.5'` → expect one error with `messageId: 'incompatibleInstalled'` on the `Program` node, message mentions package name and required WP version
+    - **Valid**: same setup but `requiresAtLeast: '6.8'` (requirement met) → no errors
+    - **Invalid (dedup)**: same setup but the file ALSO imports `@wordpress/components` → expect exactly one error with `messageId: 'incompatible'` on the `ImportDeclaration` node, zero errors with `messageId: 'incompatibleInstalled'`
 
 ### Implementation for User Story 1
 
@@ -66,8 +67,8 @@ created: "2025-07-14"
 - [ ] T008 [US1] Add `projectRoot` resolution at the top of `create()` in `packages/eslint-plugin/src/rules/no-incompatible-version.js` using the fallback chain: `const projectRoot = (context.getCwd && context.getCwd()) || context.cwd || fileDir`; then populate the discovery cache: `if (!discoveryCache.has(projectRoot)) { discoveryCache.set(projectRoot, discoverWpPackages(projectRoot)); }` and assign `const discoveredPackages = discoveryCache.get(projectRoot)`
 - [ ] T009 [US1] Compute proactive incompatibilities once per `create()` call (not inside a handler) in `packages/eslint-plugin/src/rules/no-incompatible-version.js`: iterate `discoveredPackages`, call `getInstalledVersion` and `getRequiredWpVersion` for each, collect entries where `compareVersions(requiredWp, minWp) > 0` into a `Map` keyed by package name (`proactiveMap`); also declare `const reportedByImport = new Set()` in the same closure
 - [ ] T010 [US1] Update the `return` value of `create()` in `packages/eslint-plugin/src/rules/no-incompatible-version.js` to include both the updated `ImportDeclaration` handler and a new `'Program:exit'` handler:
-  - In `ImportDeclaration`: after calling `context.report(...)`, add `reportedByImport.add(source)` so the package is tracked as already warned
-  - In `'Program:exit'(programNode)`: iterate `proactiveMap`; for each entry whose `pkgName` is NOT in `reportedByImport`, call `context.report({ node: programNode, messageId: 'incompatibleInstalled', data: { pkgName, installedVersion, requiredWp, minWp } })`
+    - In `ImportDeclaration`: after calling `context.report(...)`, add `reportedByImport.add(source)` so the package is tracked as already warned
+    - In `'Program:exit'(programNode)`: iterate `proactiveMap`; for each entry whose `pkgName` is NOT in `reportedByImport`, call `context.report({ node: programNode, messageId: 'incompatibleInstalled', data: { pkgName, installedVersion, requiredWp, minWp } })`
 
 **Checkpoint**: US1 fully functional. Run `npm test --workspace packages/eslint-plugin` — all new T004/T005 cases should pass, and all pre-existing cases must still pass (SC-005).
 
@@ -82,13 +83,13 @@ created: "2025-07-14"
 ### Tests for User Story 2
 
 - [ ] T011 [P] [US2] Add US2 unit tests to `packages/eslint-plugin/tests/discover-wp-packages.test.js`:
-  - `package.json` with `@wordpress/scripts` in `devDependencies` only → returns `['@wordpress/scripts']`
-  - `package.json` with `@wordpress/components` in both `dependencies` and `devDependencies` → returns array with exactly one `'@wordpress/components'` entry (length 1, no duplicate)
-  - `package.json` with `@wordpress/components` in `dependencies` and `@wordpress/scripts` in `devDependencies` → returns both names (length 2)
+    - `package.json` with `@wordpress/scripts` in `devDependencies` only → returns `['@wordpress/scripts']`
+    - `package.json` with `@wordpress/components` in both `dependencies` and `devDependencies` → returns array with exactly one `'@wordpress/components'` entry (length 1, no duplicate)
+    - `package.json` with `@wordpress/components` in `dependencies` and `@wordpress/scripts` in `devDependencies` → returns both names (length 2)
 
 - [ ] T012 [P] [US2] Add US2 integration test cases to `packages/eslint-plugin/tests/no-incompatible-version.test.js`:
-  - **Invalid**: write `package.json` with `@wordpress/components` (28.0.0, requires WP 6.8) in `devDependencies` only; lint a file that does NOT import it; `requiresAtLeast: '6.5'` → one `incompatibleInstalled` error on `Program` node
-  - **Valid (no duplicate)**: write `package.json` with `@wordpress/components` in both `dependencies` AND `devDependencies`; lint a file that imports it; `requiresAtLeast: '6.5'` → exactly one `incompatible` error on `ImportDeclaration`, zero `incompatibleInstalled` errors
+    - **Invalid**: write `package.json` with `@wordpress/components` (28.0.0, requires WP 6.8) in `devDependencies` only; lint a file that does NOT import it; `requiresAtLeast: '6.5'` → one `incompatibleInstalled` error on `Program` node
+    - **Valid (no duplicate)**: write `package.json` with `@wordpress/components` in both `dependencies` AND `devDependencies`; lint a file that imports it; `requiresAtLeast: '6.5'` → exactly one `incompatible` error on `ImportDeclaration`, zero `incompatibleInstalled` errors
 
 **Checkpoint**: US2 fully functional. devDeps discovered and deduplicated correctly. Run `npm test --workspace packages/eslint-plugin`.
 
@@ -103,16 +104,16 @@ created: "2025-07-14"
 ### Tests for User Story 3
 
 - [ ] T013 [P] [US3] Add US3 unit tests to `packages/eslint-plugin/tests/discover-wp-packages.test.js`:
-  - directory with no `package.json` → returns `[]`, does not throw
-  - `package.json` containing `{ invalid json` → returns `[]`, `console.warn` called exactly once with a message containing `'[wp-gutenberg-compat]'` and the file path
-  - `package.json` with `{}` (no `dependencies` or `devDependencies` keys) → returns `[]`, no warning emitted
-  - `package.json` with `{ "dependencies": {}, "devDependencies": {} }` → returns `[]`, no warning emitted
-  - (spy on `console.warn` using Vitest's `vi.spyOn` in a `beforeEach`/`afterEach` to assert call counts)
+    - directory with no `package.json` → returns `[]`, does not throw
+    - `package.json` containing `{ invalid json` → returns `[]`, `console.warn` called exactly once with a message containing `'[wp-gutenberg-compat]'` and the file path
+    - `package.json` with `{}` (no `dependencies` or `devDependencies` keys) → returns `[]`, no warning emitted
+    - `package.json` with `{ "dependencies": {}, "devDependencies": {} }` → returns `[]`, no warning emitted
+    - (spy on `console.warn` using Vitest's `vi.spyOn` in a `beforeEach`/`afterEach` to assert call counts)
 
 - [ ] T014 [P] [US3] Add US3 integration test cases to `packages/eslint-plugin/tests/no-incompatible-version.test.js`:
-  - **Valid (no crash, import still works)**: do NOT write any `package.json` to `fixtureDir`; lint a file that imports `@wordpress/block-editor` (installed 11.0.0, requires WP 6.5); `requiresAtLeast: '6.4'` → one `incompatible` error on `ImportDeclaration` (import-based detection still works), no unhandled error
-  - **Valid (malformed, import still works)**: write `{ invalid` to `fixtureDir/package.json`; lint the same file with same options → same `incompatible` error on `ImportDeclaration`, no crash, no `incompatibleInstalled` error (discovery returned `[]`)
-  - **Valid (no-keys, import still works)**: write `{}` to `fixtureDir/package.json`; lint same file → `incompatible` error on `ImportDeclaration`, no `incompatibleInstalled` error
+    - **Valid (no crash, import still works)**: do NOT write any `package.json` to `fixtureDir`; lint a file that imports `@wordpress/block-editor` (installed 11.0.0, requires WP 6.5); `requiresAtLeast: '6.4'` → one `incompatible` error on `ImportDeclaration` (import-based detection still works), no unhandled error
+    - **Valid (malformed, import still works)**: write `{ invalid` to `fixtureDir/package.json`; lint the same file with same options → same `incompatible` error on `ImportDeclaration`, no crash, no `incompatibleInstalled` error (discovery returned `[]`)
+    - **Valid (no-keys, import still works)**: write `{}` to `fixtureDir/package.json`; lint same file → `incompatible` error on `ImportDeclaration`, no `incompatibleInstalled` error
 
 **Checkpoint**: All three user stories fully functional with robust error handling. Run `npm test --workspace packages/eslint-plugin`.
 
@@ -143,7 +144,7 @@ Final Phase: Polish          → Depends on Phases 3, 4, 5 all complete
 ### Within Phase 3 (US1) — strict order
 
 ```
-T006 (add messageId) → T007 (import + cache) → T008 (projectRoot resolution) 
+T006 (add messageId) → T007 (import + cache) → T008 (projectRoot resolution)
   → T009 (proactiveMap computation) → T010 (handlers)
 ```
 
@@ -195,15 +196,15 @@ npm test --workspace packages/eslint-plugin
 
 ### Summary
 
-| Phase | Tasks | New Files | Modified Files |
-|-------|-------|-----------|----------------|
-| 1: Setup | 1 | — | — |
-| 2: Foundational | 2 | `src/utils/discover-wp-packages.js`, `tests/discover-wp-packages.test.js` | — |
-| 3: US1 (P1 MVP) | 7 | — | `src/rules/no-incompatible-version.js`, `tests/no-incompatible-version.test.js` |
-| 4: US2 (P2) | 2 | — | `tests/discover-wp-packages.test.js`, `tests/no-incompatible-version.test.js` |
-| 5: US3 (P3) | 2 | — | `tests/discover-wp-packages.test.js`, `tests/no-incompatible-version.test.js` |
-| Final: Polish | 2 | — | — |
-| **Total** | **16** | **2** | **2** |
+| Phase           | Tasks  | New Files                                                                 | Modified Files                                                                  |
+| --------------- | ------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1: Setup        | 1      | —                                                                         | —                                                                               |
+| 2: Foundational | 2      | `src/utils/discover-wp-packages.js`, `tests/discover-wp-packages.test.js` | —                                                                               |
+| 3: US1 (P1 MVP) | 7      | —                                                                         | `src/rules/no-incompatible-version.js`, `tests/no-incompatible-version.test.js` |
+| 4: US2 (P2)     | 2      | —                                                                         | `tests/discover-wp-packages.test.js`, `tests/no-incompatible-version.test.js`   |
+| 5: US3 (P3)     | 2      | —                                                                         | `tests/discover-wp-packages.test.js`, `tests/no-incompatible-version.test.js`   |
+| Final: Polish   | 2      | —                                                                         | —                                                                               |
+| **Total**       | **16** | **2**                                                                     | **2**                                                                           |
 
 ### Parallel Opportunities Identified
 
@@ -214,8 +215,8 @@ npm test --workspace packages/eslint-plugin
 
 ### Independent Test Criteria Per Story
 
-| Story | Independent Test | Pass Signal |
-|-------|-----------------|-------------|
-| US1 | Lint a file importing incompatible `@wordpress/block-editor`; also lint a file that doesn't import it but the package is in `package.json` | `incompatible` on `ImportDeclaration`; `incompatibleInstalled` on `Program`; no duplicates |
-| US2 | `package.json` with `@wordpress/scripts` in `devDependencies` only | `discoverWpPackages` returns the name; rule fires `incompatibleInstalled` for it |
-| US3 | ESLint run against a project with no `package.json` | Process completes, import-based `incompatible` warning still fires, zero crashes |
+| Story | Independent Test                                                                                                                           | Pass Signal                                                                                |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| US1   | Lint a file importing incompatible `@wordpress/block-editor`; also lint a file that doesn't import it but the package is in `package.json` | `incompatible` on `ImportDeclaration`; `incompatibleInstalled` on `Program`; no duplicates |
+| US2   | `package.json` with `@wordpress/scripts` in `devDependencies` only                                                                         | `discoverWpPackages` returns the name; rule fires `incompatibleInstalled` for it           |
+| US3   | ESLint run against a project with no `package.json`                                                                                        | Process completes, import-based `incompatible` warning still fires, zero crashes           |

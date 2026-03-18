@@ -1,18 +1,28 @@
 {
-  "name": "wp-gutenberg-compat",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Toolchain to verify @wordpress/* package compatibility with minimum WordPress versions",
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "generate": "node scripts/generate.js",
-    "test": "npm test --workspaces --if-present",
-    "lint": "eslint ."
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "license": "MIT"
+    "name": "wp-gutenberg-compat",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Toolchain to verify @wordpress/* package compatibility with minimum WordPress versions",
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "generate": "node scripts/generate.js",
+        "test": "npm test --workspaces --if-present",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "prepare": "husky"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@eslint/compat": "^2.0.3",
+        "eslint-config-prettier": "^10.1.8",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.4.0",
+        "prettier": "^3.8.1"
+    }
 }

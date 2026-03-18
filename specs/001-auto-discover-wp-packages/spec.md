@@ -3,13 +3,13 @@
 **Feature Branch**: `001-auto-discover-wp-packages`
 **Created**: 2025-07-14
 **Status**: Draft
-**Input**: User description: "Automatically discover all @wordpress/* packages installed in the project by scanning package.json dependencies (rather than only checking them when encountered as an import). Add a utility function discoverWpPackages(projectRoot) that reads the project's package.json and returns a list of all @wordpress/* package names found in dependencies and devDependencies. Enhance the no-incompatible-version rule to use this utility so it can proactively warn about packages even if they appear for the first time in a file."
+**Input**: User description: "Automatically discover all @wordpress/_ packages installed in the project by scanning package.json dependencies (rather than only checking them when encountered as an import). Add a utility function discoverWpPackages(projectRoot) that reads the project's package.json and returns a list of all @wordpress/_ package names found in dependencies and devDependencies. Enhance the no-incompatible-version rule to use this utility so it can proactively warn about packages even if they appear for the first time in a file."
 
 ## Overview
 
 The `no-incompatible-version` rule currently only evaluates a `@wordpress/*` package when it is explicitly encountered as an import statement in the file being linted. This means a developer can miss version-incompatibility warnings entirely if a package is installed but appears in only one file — specifically the first file that imports it. This feature adds upfront discovery of all installed `@wordpress/*` packages from the project's `package.json`, enabling the rule to warn proactively regardless of import order or file context.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 — Proactive Incompatibility Warnings on First Import (Priority: P1)
 
@@ -66,7 +66,7 @@ A developer runs ESLint in an environment where no `package.json` is present (e.
 - What happens when `package.json` exists but lists zero `@wordpress/*` packages? → The utility returns an empty list; no warnings are produced from discovery alone.
 - What happens when a `@wordpress/*` package is installed but has no compatibility data entry? → The rule's existing behavior for unknown packages applies (no false positive).
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -86,7 +86,7 @@ A developer runs ESLint in an environment where no `package.json` is present (e.
 - **Project Root**: The filesystem path passed to `discoverWpPackages` that anchors the search for `package.json`. Determined once per lint run by the rule, typically from ESLint's `cwd` or the location of the ESLint configuration file.
 - **Discovered Package Cache**: An in-memory store keyed by project root, holding the Package Discovery Result for the duration of a single lint run. Prevents repeated `package.json` reads across files in the same project.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -18,8 +18,8 @@ src/edit.js
 
 ## Packages
 
-| Package | Description |
-| --- | --- |
+| Package                                                       | Description                                    |
+| ------------------------------------------------------------- | ---------------------------------------------- |
 | [`eslint-plugin-wp-gutenberg-compat`](packages/eslint-plugin) | ESLint rule that warns on incompatible imports |
 
 ## Quick Start
@@ -34,9 +34,7 @@ npm install --save-dev eslint-plugin-wp-gutenberg-compat
 // eslint.config.js
 import wpGutenbergCompat from 'eslint-plugin-wp-gutenberg-compat';
 
-export default [
-  wpGutenbergCompat.configs.recommended,
-];
+export default [wpGutenbergCompat.configs.recommended];
 ```
 
 ### Version Detection

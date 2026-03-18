@@ -23,23 +23,23 @@ export function discoverWpPackages(projectRoot) { ... }
 
 ## Input Contract
 
-| Parameter | Type | Required | Constraints |
-|-----------|------|----------|-------------|
-| `projectRoot` | `string` | Yes | Should be an absolute path. Relative paths are accepted but the `package.json` search is anchored to it. |
+| Parameter     | Type     | Required | Constraints                                                                                              |
+| ------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `projectRoot` | `string` | Yes      | Should be an absolute path. Relative paths are accepted but the `package.json` search is anchored to it. |
 
 ---
 
 ## Output Contract
 
-| Condition | Return Value | Side Effect |
-|-----------|-------------|-------------|
-| Happy path — `package.json` found and parseable with ≥1 `@wordpress/*` entries | `string[]` with those package names, deduplicated, no empty strings | None |
-| `package.json` found, parseable, zero `@wordpress/*` entries | `[]` | None |
-| `package.json` found, parseable, no `dependencies`/`devDependencies` keys | `[]` | None |
-| `package.json` not found (`ENOENT`) | `[]` | None |
-| `package.json` not readable (permissions error) | `[]` | None |
-| `package.json` exists but contains invalid JSON | `[]` | `console.warn('[wp-gutenberg-compat] Could not parse <path>: <message>')` |
-| Same `@wordpress/*` package in both `dependencies` and `devDependencies` | Single entry in returned array | None |
+| Condition                                                                      | Return Value                                                        | Side Effect                                                               |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Happy path — `package.json` found and parseable with ≥1 `@wordpress/*` entries | `string[]` with those package names, deduplicated, no empty strings | None                                                                      |
+| `package.json` found, parseable, zero `@wordpress/*` entries                   | `[]`                                                                | None                                                                      |
+| `package.json` found, parseable, no `dependencies`/`devDependencies` keys      | `[]`                                                                | None                                                                      |
+| `package.json` not found (`ENOENT`)                                            | `[]`                                                                | None                                                                      |
+| `package.json` not readable (permissions error)                                | `[]`                                                                | None                                                                      |
+| `package.json` exists but contains invalid JSON                                | `[]`                                                                | `console.warn('[wp-gutenberg-compat] Could not parse <path>: <message>')` |
+| Same `@wordpress/*` package in both `dependencies` and `devDependencies`       | Single entry in returned array                                      | None                                                                      |
 
 **Guarantee**: The function **never throws** under any condition. All error paths
 return `[]`.
@@ -86,13 +86,10 @@ resolution is the responsibility of `getInstalledVersion()` in the rule.
 const discoveryCache = new Map();
 
 // Inside create(context):
-const projectRoot =
-  (context.getCwd && context.getCwd()) ||
-  context.cwd ||
-  path.dirname(filename);
+const projectRoot = (context.getCwd && context.getCwd()) || context.cwd || path.dirname(filename);
 
 if (!discoveryCache.has(projectRoot)) {
-  discoveryCache.set(projectRoot, discoverWpPackages(projectRoot));
+    discoveryCache.set(projectRoot, discoverWpPackages(projectRoot));
 }
 const discoveredPackages = discoveryCache.get(projectRoot);
 ```
@@ -103,11 +100,10 @@ const discoveredPackages = discoveryCache.get(projectRoot);
 
 ```js
 // Added to rule.meta.messages:
-incompatibleInstalled:
-  "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, " +
-  "but your plugin declares a minimum of WordPress {{minWp}}. " +
-  "Either upgrade your minimum WP version or downgrade the package. " +
-  "(Detected from package.json)"
+incompatibleInstalled: "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, " +
+    'but your plugin declares a minimum of WordPress {{minWp}}. ' +
+    'Either upgrade your minimum WP version or downgrade the package. ' +
+    '(Detected from package.json)';
 ```
 
 This messageId is used when reporting on the `Program` node for packages discovered
