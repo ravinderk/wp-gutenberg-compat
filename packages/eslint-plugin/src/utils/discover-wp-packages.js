@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+const fs = require('node:fs');
+const path = require('node:path');
 
 /** Module-level cache keyed by resolved project root. */
 const cache = new Map();
@@ -33,7 +33,7 @@ function findProjectRoot(startDir) {
  * @param {string} startDir  Directory to start the upward search from.
  * @returns {string[]}
  */
-export function discoverWpPackages(startDir) {
+function discoverWpPackages(startDir) {
   const root = findProjectRoot(startDir);
   if (!root) return [];
 
@@ -62,6 +62,8 @@ export function discoverWpPackages(startDir) {
 /**
  * Clear the module-level cache (for testing only).
  */
-export function clearDiscoverCache() {
+function clearDiscoverCache() {
   cache.clear();
 }
+
+module.exports = { discoverWpPackages, clearDiscoverCache };

@@ -1,15 +1,15 @@
-import { createRequire } from 'node:module';
-import path from 'node:path';
-import fs from 'node:fs';
-import { discoverWpPackages } from '../utils/discover-wp-packages.js';
-
-const require = createRequire(import.meta.url);
+const path = require('node:path');
+const fs = require('node:fs');
+const { discoverWpPackages } = require('../utils/discover-wp-packages.js');
 
 /** Cache compat data across files within the same lint run. */
 let compatDataCache = null;
 
 /** Cache discovered @wordpress packages keyed by resolved project root. */
 const discoveryCache = new Map();
+
+/** Track project roots where the missingMinWp error has already been reported. */
+const missingMinWpReported = new Set();
 
 function loadCompatData(customPath) {
   if (compatDataCache) return compatDataCache;
@@ -26,6 +26,8 @@ function loadCompatData(customPath) {
 /**
  * Scan the project root for a main plugin PHP file or theme style.css
  * and read its "Requires at least" header.
+ *
+ * @returns {{ version: string|null, projectType: 'plugin'|'theme'|null, pluginFile: string|null }}
  */
 function findWpVersionFromHeader(startDir) {
   let dir = startDir;
@@ -33,7 +35,7 @@ function findWpVersionFromHeader(startDir) {
   while (true) {
     if (fs.existsSync(path.join(dir, 'package.json'))) break;
     const parent = path.dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) return { version: null, projectType: null, pluginFile: null };
     dir = parent;
   }
 
@@ -41,15 +43,17 @@ function findWpVersionFromHeader(startDir) {
 
   // Check for plugin file: {dirName}.php
   const dirName = path.basename(dir);
-  const pluginFile = path.join(dir, `${dirName}.php`);
+  const pluginFileName = `${dirName}.php`;
+  const pluginFile = path.join(dir, pluginFileName);
   if (fs.existsSync(pluginFile)) {
     try {
       const content = fs.readFileSync(pluginFile, 'utf8');
       const match = content.match(requiresAtLeastPattern);
-      if (match) return match[1];
+      if (match) return { version: match[1], projectType: 'plugin', pluginFile: pluginFileName };
     } catch {
       // Ignore read errors
     }
+    return { version: null, projectType: 'plugin', pluginFile: pluginFileName };
   }
 
   // Check for theme: style.css
@@ -58,13 +62,14 @@ function findWpVersionFromHeader(startDir) {
     try {
       const content = fs.readFileSync(styleFile, 'utf8');
       const match = content.match(requiresAtLeastPattern);
-      if (match) return match[1];
+      if (match) return { version: match[1], projectType: 'theme', pluginFile: null };
     } catch {
       // Ignore read errors
     }
+    return { version: null, projectType: 'theme', pluginFile: null };
   }
 
-  return null;
+  return { version: null, projectType: null, pluginFile: null };
 }
 
 /**
@@ -163,6 +168,10 @@ const rule = {
         "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package.",
       missingMinWp:
         "Could not determine the minimum WordPress version. Add 'Requires at least: X.Y' to your plugin's main PHP file header or theme's style.css header.",
+      missingMinWpPlugin:
+        "Could not determine the minimum WordPress version. Add 'Requires at least: X.Y' to your plugin's main PHP file header ({{pluginFile}}).",
+      missingMinWpTheme:
+        "Could not determine the minimum WordPress version. Add 'Requires at least: X.Y' to your theme's style.css header.",
     },
   },
 
@@ -172,12 +181,35 @@ const rule = {
     const fileDir = path.dirname(filename);
 
     // Resolve minimum WP version from plugin/theme file header
-    const minWp = findWpVersionFromHeader(fileDir);
+    const { version: minWp, projectType, pluginFile } = findWpVersionFromHeader(fileDir);
 
     if (!minWp) {
+      // Resolve project root to report this error only once per project.
+      let projectRoot = fileDir;
+      while (true) {
+        if (fs.existsSync(path.join(projectRoot, 'package.json'))) break;
+        const parent = path.dirname(projectRoot);
+        if (parent === projectRoot) break;
+        projectRoot = parent;
+      }
+
+      if (missingMinWpReported.has(projectRoot)) {
+        return {};
+      }
+      missingMinWpReported.add(projectRoot);
+
+      let messageId = 'missingMinWp';
+      let data;
+      if (projectType === 'plugin') {
+        messageId = 'missingMinWpPlugin';
+        data = { pluginFile };
+      } else if (projectType === 'theme') {
+        messageId = 'missingMinWpTheme';
+      }
+
       return {
         Program(node) {
-          context.report({ node, messageId: 'missingMinWp' });
+          context.report({ node, messageId, data });
         },
       };
     }
@@ -221,4 +253,4 @@ const rule = {
   },
 };
 
-export default rule;
+module.exports = rule;

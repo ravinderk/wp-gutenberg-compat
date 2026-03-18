@@ -61,7 +61,7 @@ describe('wp-gutenberg-compat/no-incompatible-version — missing header', () =>
     });
   });
 
-  it('reports missingMinWp when plugin file has no Requires at least header', () => {
+  it('reports missingMinWpPlugin when plugin file has no Requires at least header', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [],
       invalid: [
@@ -69,13 +69,13 @@ describe('wp-gutenberg-compat/no-incompatible-version — missing header', () =>
           code: "import { Button } from '@wordpress/components';",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'plugin-no-version', 'test-file.js'),
-          errors: [{ messageId: 'missingMinWp' }],
+          errors: [{ messageId: 'missingMinWpPlugin' }],
         },
       ],
     });
   });
 
-  it('reports missingMinWp when theme style.css has no Requires at least header', () => {
+  it('reports missingMinWpTheme when theme style.css has no Requires at least header', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [],
       invalid: [
@@ -83,7 +83,7 @@ describe('wp-gutenberg-compat/no-incompatible-version — missing header', () =>
           code: "import { Button } from '@wordpress/components';",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'theme-no-version', 'test-file.js'),
-          errors: [{ messageId: 'missingMinWp' }],
+          errors: [{ messageId: 'missingMinWpTheme' }],
         },
       ],
     });

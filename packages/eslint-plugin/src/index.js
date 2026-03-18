@@ -1,4 +1,4 @@
-import noIncompatibleVersion from './rules/no-incompatible-version.js';
+const noIncompatibleVersion = require('./rules/no-incompatible-version.js');
 
 const plugin = {
   meta: {
@@ -21,4 +21,4 @@ plugin.configs.recommended = {
   },
 };
 
-export default plugin;
+module.exports = plugin;
