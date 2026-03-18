@@ -11,6 +11,9 @@ const discoveryCache = new Map();
 /** Track project roots where the missingMinWp error has already been reported. */
 const missingMinWpReported = new Set();
 
+/** Track project-root + package combos where the incompatible error has already been reported. */
+const incompatibleReported = new Set();
+
 function loadCompatData(customPath) {
   if (compatDataCache) return compatDataCache;
 
@@ -222,20 +225,33 @@ const rule = {
       return {};
     }
 
-    // Discover installed @wordpress/* packages from the nearest package.json.
-    if (!discoveryCache.has(fileDir)) {
-      discoveryCache.set(fileDir, discoverWpPackages(fileDir));
+    // Resolve project root for deduplication.
+    let projectRoot = fileDir;
+    while (true) {
+      if (fs.existsSync(path.join(projectRoot, 'package.json'))) break;
+      const parent = path.dirname(projectRoot);
+      if (parent === projectRoot) break;
+      projectRoot = parent;
     }
-    const discoveredPackages = discoveryCache.get(fileDir);
+
+    // Discover installed @wordpress/* packages from the nearest package.json.
+    if (!discoveryCache.has(projectRoot)) {
+      discoveryCache.set(projectRoot, discoverWpPackages(fileDir));
+    }
+    const discoveredPackages = discoveryCache.get(projectRoot);
 
     return {
       Program(programNode) {
         for (const pkgName of discoveredPackages) {
+          const cacheKey = `${projectRoot}\0${pkgName}`;
+          if (incompatibleReported.has(cacheKey)) continue;
+
           const installedVersion = getInstalledVersion(pkgName, fileDir);
           if (!installedVersion) continue;
           const requiredWp = getRequiredWpVersion(compatData, pkgName, installedVersion);
           if (!requiredWp) continue;
           if (compareVersions(requiredWp, minWp) > 0) {
+            incompatibleReported.add(cacheKey);
             context.report({
               node: programNode,
               messageId: 'incompatible',
