@@ -73,7 +73,7 @@ GITHUB_TOKEN=ghp_... node scripts/generate.js
 
 ## Tracked Packages
 
-`@wordpress/components`, `@wordpress/block-editor`, `@wordpress/blocks`, `@wordpress/data`, `@wordpress/element`, `@wordpress/hooks`, `@wordpress/i18n`, `@wordpress/api-fetch`, `@wordpress/compose`, `@wordpress/notices`, `@wordpress/primitives`, `@wordpress/icons`, `@wordpress/core-data`
+Every `@wordpress/*` package published in Gutenberg is tracked automatically — no configuration needed. The compatibility data is regenerated daily from the latest Gutenberg release, so new packages are picked up as soon as they ship.
 
 ## License
 
