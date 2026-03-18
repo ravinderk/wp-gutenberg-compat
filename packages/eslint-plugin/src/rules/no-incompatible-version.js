@@ -24,35 +24,10 @@ function loadCompatData(customPath) {
 }
 
 /**
- * Walk up from `startDir` looking for the nearest package.json that
- * contains a `wordpress.requiresAtLeast` field.
+ * Scan the project root for a main plugin PHP file or theme style.css
+ * and read its "Requires at least" header.
  */
-function findWpVersionFromPackageJson(startDir) {
-  let dir = startDir;
-  while (true) {
-    const pkgPath = path.join(dir, 'package.json');
-    if (fs.existsSync(pkgPath)) {
-      try {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        if (pkg.wordpress && pkg.wordpress.requiresAtLeast) {
-          return pkg.wordpress.requiresAtLeast;
-        }
-      } catch {
-        // Ignore parse errors and keep walking
-      }
-    }
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return null;
-}
-
-/**
- * Scan the project root for a main plugin PHP file and read its
- * "Requires at least" header.
- */
-function findWpVersionFromPluginHeader(startDir) {
+function findWpVersionFromHeader(startDir) {
   let dir = startDir;
   // Walk up to find the project root (directory containing package.json)
   while (true) {
@@ -62,17 +37,31 @@ function findWpVersionFromPluginHeader(startDir) {
     dir = parent;
   }
 
+  const requiresAtLeastPattern = /Requires\s+at\s+least:\s*([\d.]+)/i;
+
+  // Check for plugin file: {dirName}.php
   const dirName = path.basename(dir);
   const pluginFile = path.join(dir, `${dirName}.php`);
+  if (fs.existsSync(pluginFile)) {
+    try {
+      const content = fs.readFileSync(pluginFile, 'utf8');
+      const match = content.match(requiresAtLeastPattern);
+      if (match) return match[1];
+    } catch {
+      // Ignore read errors
+    }
+  }
 
-  if (!fs.existsSync(pluginFile)) return null;
-
-  try {
-    const content = fs.readFileSync(pluginFile, 'utf8');
-    const match = content.match(/Requires\s+at\s+least:\s*([\d.]+)/i);
-    if (match) return match[1];
-  } catch {
-    // Ignore read errors
+  // Check for theme: style.css
+  const styleFile = path.join(dir, 'style.css');
+  if (fs.existsSync(styleFile)) {
+    try {
+      const content = fs.readFileSync(styleFile, 'utf8');
+      const match = content.match(requiresAtLeastPattern);
+      if (match) return match[1];
+    } catch {
+      // Ignore read errors
+    }
   }
 
   return null;
@@ -161,10 +150,6 @@ const rule = {
       {
         type: 'object',
         properties: {
-          requiresAtLeast: {
-            type: 'string',
-            description: 'Minimum WordPress version (e.g. "6.5")',
-          },
           dataPath: {
             type: 'string',
             description: 'Path to a custom compat-data.json file',
@@ -178,6 +163,8 @@ const rule = {
         "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package.",
       incompatibleInstalled:
         "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package. (Detected from package.json)",
+      missingMinWp:
+        "Could not determine the minimum WordPress version. Add 'Requires at least: X.Y' to your plugin's main PHP file header or theme's style.css header.",
     },
   },
 
@@ -186,15 +173,15 @@ const rule = {
     const filename = context.filename || context.getFilename();
     const fileDir = path.dirname(filename);
 
-    // Resolve minimum WP version: option > package.json > PHP header
-    const minWp =
-      options.requiresAtLeast ||
-      findWpVersionFromPackageJson(fileDir) ||
-      findWpVersionFromPluginHeader(fileDir);
+    // Resolve minimum WP version from plugin/theme file header
+    const minWp = findWpVersionFromHeader(fileDir);
 
     if (!minWp) {
-      // Cannot determine minimum WP version — skip rule silently
-      return {};
+      return {
+        Program(node) {
+          context.report({ node, messageId: 'missingMinWp' });
+        },
+      };
     }
 
     let compatData;

@@ -19,7 +19,7 @@ src/edit.js
 ## Packages
 
 | Package | Description |
-|---|---|
+| --- | --- |
 | [`eslint-plugin-gutenberg-compat`](packages/eslint-plugin) | ESLint rule that warns on incompatible imports |
 
 ## Quick Start
@@ -36,22 +36,17 @@ import gutenbergCompat from 'eslint-plugin-gutenberg-compat';
 
 export default [
   gutenbergCompat.configs.recommended,
-  {
-    rules: {
-      'gutenberg-compat/no-incompatible-version': ['error', {
-        requiresAtLeast: '6.5'
-      }]
-    }
-  }
 ];
 ```
 
-### Automatic Version Detection
+### Version Detection
 
-Instead of setting `requiresAtLeast` in your ESLint config, the plugin can read your minimum WordPress version automatically from:
+The plugin reads your minimum WordPress version from the `Requires at least` header in:
 
-1. **`package.json`** — `{ "wordpress": { "requiresAtLeast": "6.5" } }`
-2. **Plugin PHP header** — `Requires at least: 6.5` in your main plugin file
+1. **Plugin PHP header** — `Requires at least: 6.5` in your main plugin file (`{plugin-dir}/{plugin-dir}.php`)
+2. **Theme `style.css` header** — `Requires at least: 6.5` in your theme's `style.css`
+
+If neither is found, the rule reports an error asking you to add the header.
 
 ## How It Works
 
