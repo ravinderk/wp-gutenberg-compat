@@ -3,7 +3,13 @@ name: Generate Compat Data
 on:
   schedule:
     - cron: '0 6 * * *'    # Daily at 06:00 UTC
-  workflow_dispatch:         # Manual trigger
+  workflow_dispatch:
+    inputs:
+      force_refresh:
+        description: 'Delete compat-data.json and regenerate all entries from scratch'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -23,6 +29,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Force refresh compat data
+        if: inputs.force_refresh == true
+        run: rm -f packages/data/compat-data.json
 
       - name: Run scraper
         env:
