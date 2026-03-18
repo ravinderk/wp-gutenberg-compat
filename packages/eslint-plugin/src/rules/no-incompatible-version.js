@@ -1,11 +1,15 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import fs from 'node:fs';
+import { discoverWpPackages } from '../utils/discover-wp-packages.js';
 
 const require = createRequire(import.meta.url);
 
 /** Cache compat data across files within the same lint run. */
 let compatDataCache = null;
+
+/** Cache discovered @wordpress packages keyed by resolved project root. */
+const discoveryCache = new Map();
 
 function loadCompatData(customPath) {
   if (compatDataCache) return compatDataCache;
@@ -172,6 +176,8 @@ const rule = {
     messages: {
       incompatible:
         "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package.",
+      incompatibleInstalled:
+        "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package. (Detected from package.json)",
     },
   },
 
@@ -199,6 +205,34 @@ const rule = {
       return {};
     }
 
+    // Discover installed @wordpress/* packages from the nearest package.json.
+    // Use fileDir as the starting point so that:
+    //   - In tests the fixture directory (which contains the test package.json) is found directly.
+    //   - In real projects the utility walks up from the source file to find the project root.
+    if (!discoveryCache.has(fileDir)) {
+      discoveryCache.set(fileDir, discoverWpPackages(fileDir));
+    }
+    const discoveredPackages = discoveryCache.get(fileDir);
+
+    // Build a map of discovered packages that are incompatible with minWp.
+    // Keyed by package name → { installedVersion, requiredWp }.
+    const proactiveMap = new Map();
+    for (const pkgName of discoveredPackages) {
+      const installedVersion = getInstalledVersion(pkgName, fileDir);
+      if (!installedVersion) continue;
+      const requiredWp = getRequiredWpVersion(compatData, pkgName, installedVersion);
+      if (!requiredWp) continue;
+      if (compareVersions(requiredWp, minWp) > 0) {
+        proactiveMap.set(pkgName, {
+          installedVersion: stripPreRelease(installedVersion),
+          requiredWp,
+        });
+      }
+    }
+
+    // Track packages already reported via ImportDeclaration to avoid duplicates.
+    const reportedByImport = new Set();
+
     return {
       ImportDeclaration(node) {
         const source = node.source.value;
@@ -220,6 +254,19 @@ const rule = {
               requiredWp,
               minWp,
             },
+          });
+          // Mark as reported so Program:exit skips it.
+          reportedByImport.add(source);
+        }
+      },
+
+      'Program:exit'(programNode) {
+        for (const [pkgName, { installedVersion, requiredWp }] of proactiveMap) {
+          if (reportedByImport.has(pkgName)) continue;
+          context.report({
+            node: programNode,
+            messageId: 'incompatibleInstalled',
+            data: { pkgName, installedVersion, requiredWp, minWp },
           });
         }
       },
