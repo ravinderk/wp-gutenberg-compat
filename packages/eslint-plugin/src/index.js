@@ -1,9 +1,10 @@
+const { version } = require('../package.json');
 const noIncompatibleVersion = require('./rules/no-incompatible-version.js');
 
 const plugin = {
   meta: {
     name: 'eslint-plugin-wp-gutenberg-compat',
-    version: '0.1.0',
+    version,
   },
   rules: {
     'no-incompatible-version': noIncompatibleVersion,
