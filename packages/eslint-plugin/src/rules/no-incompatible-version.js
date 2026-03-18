@@ -17,7 +17,7 @@ function loadCompatData(customPath) {
   if (customPath) {
     compatDataCache = JSON.parse(fs.readFileSync(customPath, 'utf8'));
   } else {
-    compatDataCache = require('@gutenberg-compat/data/compat-data.json');
+    compatDataCache = require('../data/compat-data.json');
   }
 
   return compatDataCache;

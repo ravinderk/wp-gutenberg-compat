@@ -21,7 +21,6 @@ src/edit.js
 | Package | Description |
 |---|---|
 | [`eslint-plugin-gutenberg-compat`](packages/eslint-plugin) | ESLint rule that warns on incompatible imports |
-| [`@gutenberg-compat/data`](packages/data) | Auto-generated WP ↔ Gutenberg ↔ package version data |
 
 ## Quick Start
 
