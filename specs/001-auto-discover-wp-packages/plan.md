@@ -17,7 +17,7 @@ packages **not** already covered by discovery, preserving full backwards compati
 ## Technical Context
 
 **Language/Version**: JavaScript (ESM), Node.js ≥ 18 (LTS)  
-**Primary Dependencies**: `eslint` (peer, ≥ 8.0.0); `@gutenberg-compat/data` (internal workspace package)  
+**Primary Dependencies**: `eslint` (peer, ≥ 8.0.0); `@wp-gutenberg-compat/data` (internal workspace package)  
 **Storage**: Filesystem only — `package.json` read via `node:fs`; no database  
 **Testing**: Vitest 3.x + ESLint `RuleTester` (flat-config mode)  
 **Target Platform**: Node.js developer workstation / CI (Linux, macOS, Windows)  

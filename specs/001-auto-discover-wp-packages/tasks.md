@@ -33,7 +33,7 @@ created: "2025-07-14"
 
 **⚠️ CRITICAL**: Phases 3–5 all import and invoke `discoverWpPackages`. Do not start them until T002–T003 are complete.
 
-- [ ] T002 Create `packages/eslint-plugin/src/utils/discover-wp-packages.js` exporting `discoverWpPackages(projectRoot)` — reads `package.json` at `path.join(projectRoot, 'package.json')`, merges `dependencies` and `devDependencies` keys via `[...new Set([...deps, ...devDeps])]`, filters for names starting with `@wordpress/`, returns `[]` (never throws) on `ENOENT` or any other error; emits `console.warn('[gutenberg-compat] Could not parse <path>: <message>')` only when the file exists but contains invalid JSON
+- [ ] T002 Create `packages/eslint-plugin/src/utils/discover-wp-packages.js` exporting `discoverWpPackages(projectRoot)` — reads `package.json` at `path.join(projectRoot, 'package.json')`, merges `dependencies` and `devDependencies` keys via `[...new Set([...deps, ...devDeps])]`, filters for names starting with `@wordpress/`, returns `[]` (never throws) on `ENOENT` or any other error; emits `console.warn('[wp-gutenberg-compat] Could not parse <path>: <message>')` only when the file exists but contains invalid JSON
 - [ ] T003 [P] Create `packages/eslint-plugin/tests/discover-wp-packages.test.js` with Vitest scaffold: import `{ discoverWpPackages }` from `'../src/utils/discover-wp-packages.js'`, add `beforeEach`/`afterEach` helpers that write and clean up a temporary directory using `fs.mkdtempSync(path.join(os.tmpdir(), 'gb-disc-test-'))` for use as `projectRoot` in all test cases
 
 **Checkpoint**: `discoverWpPackages` is importable and both files exist — rule modification can now begin.
@@ -104,7 +104,7 @@ created: "2025-07-14"
 
 - [ ] T013 [P] [US3] Add US3 unit tests to `packages/eslint-plugin/tests/discover-wp-packages.test.js`:
   - directory with no `package.json` → returns `[]`, does not throw
-  - `package.json` containing `{ invalid json` → returns `[]`, `console.warn` called exactly once with a message containing `'[gutenberg-compat]'` and the file path
+  - `package.json` containing `{ invalid json` → returns `[]`, `console.warn` called exactly once with a message containing `'[wp-gutenberg-compat]'` and the file path
   - `package.json` with `{}` (no `dependencies` or `devDependencies` keys) → returns `[]`, no warning emitted
   - `package.json` with `{ "dependencies": {}, "devDependencies": {} }` → returns `[]`, no warning emitted
   - (spy on `console.warn` using Vitest's `vi.spyOn` in a `beforeEach`/`afterEach` to assert call counts)

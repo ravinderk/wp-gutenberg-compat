@@ -38,7 +38,7 @@ export function discoverWpPackages(projectRoot) { ... }
 | `package.json` found, parseable, no `dependencies`/`devDependencies` keys | `[]` | None |
 | `package.json` not found (`ENOENT`) | `[]` | None |
 | `package.json` not readable (permissions error) | `[]` | None |
-| `package.json` exists but contains invalid JSON | `[]` | `console.warn('[gutenberg-compat] Could not parse <path>: <message>')` |
+| `package.json` exists but contains invalid JSON | `[]` | `console.warn('[wp-gutenberg-compat] Could not parse <path>: <message>')` |
 | Same `@wordpress/*` package in both `dependencies` and `devDependencies` | Single entry in returned array | None |
 
 **Guarantee**: The function **never throws** under any condition. All error paths
@@ -58,7 +58,7 @@ return `[]`.
    Catch ENOENT:
      return []
    Catch SyntaxError or other:
-     console.warn('[gutenberg-compat] Could not parse <pkgPath>: <err.message>')
+     console.warn('[wp-gutenberg-compat] Could not parse <pkgPath>: <err.message>')
      return []
 3. deps    = Object.keys(pkg.dependencies    || {})
 4. devDeps = Object.keys(pkg.devDependencies || {})

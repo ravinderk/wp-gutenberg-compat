@@ -41,7 +41,7 @@ const tester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('gutenberg-compat/no-incompatible-version — theme support', () => {
+describe('wp-gutenberg-compat/no-incompatible-version — theme support', () => {
   it('reads Requires at least from theme style.css', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [

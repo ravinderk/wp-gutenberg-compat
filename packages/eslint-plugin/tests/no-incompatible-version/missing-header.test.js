@@ -46,7 +46,7 @@ const tester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('gutenberg-compat/no-incompatible-version — missing header', () => {
+describe('wp-gutenberg-compat/no-incompatible-version — missing header', () => {
   it('reports missingMinWp when no plugin file or style.css exists', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [],

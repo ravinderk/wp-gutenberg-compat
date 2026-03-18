@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Data scraper for gutenberg-compat.
+ * Data scraper for wp-gutenberg-compat.
  *
  * Maps WordPress versions → Gutenberg versions → @wordpress/* package versions
  * and writes the result to packages/data/compat-data.json.

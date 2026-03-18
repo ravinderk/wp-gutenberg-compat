@@ -43,7 +43,7 @@ const tester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('gutenberg-compat/no-incompatible-version', () => {
+describe('wp-gutenberg-compat/no-incompatible-version', () => {
   it('reports and passes expected cases', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [

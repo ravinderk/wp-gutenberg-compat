@@ -26,7 +26,7 @@ function findProjectRoot(startDir) {
  * devDependencies of the nearest package.json found above startDir.
  *
  * Returns an empty array on any error. Never throws.
- * Emits console.warn (with '[gutenberg-compat]' prefix) only when the file
+ * Emits console.warn (with '[wp-gutenberg-compat]' prefix) only when the file
  * exists but contains invalid JSON.
  * Results are cached by resolved project root for the duration of the process.
  *
@@ -46,7 +46,7 @@ export function discoverWpPackages(startDir) {
   } catch (err) {
     // Only warn when the file exists but JSON is malformed
     if (err.code !== 'ENOENT') {
-      console.warn(`[gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
+      console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
     }
     cache.set(root, []);
     return [];

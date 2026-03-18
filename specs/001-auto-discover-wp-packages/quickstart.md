@@ -42,7 +42,7 @@ export function discoverWpPackages(projectRoot) {
   } catch (err) {
     if (err.code !== 'ENOENT') {
       console.warn(
-        `[gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`,
+        `[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`,
       );
     }
     return [];

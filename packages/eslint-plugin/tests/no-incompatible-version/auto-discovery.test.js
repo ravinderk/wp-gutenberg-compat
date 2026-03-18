@@ -52,7 +52,7 @@ const tester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('gutenberg-compat/no-incompatible-version — auto-discovery', () => {
+describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () => {
   // US1: package in dependencies (not imported) → incompatibleInstalled on Program node
   it('US1: reports incompatibleInstalled for package in dependencies not imported in file', () => {
     fs.writeFileSync(

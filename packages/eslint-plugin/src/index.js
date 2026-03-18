@@ -2,7 +2,7 @@ import noIncompatibleVersion from './rules/no-incompatible-version.js';
 
 const plugin = {
   meta: {
-    name: 'eslint-plugin-gutenberg-compat',
+    name: 'eslint-plugin-wp-gutenberg-compat',
     version: '0.1.0',
   },
   rules: {
@@ -14,10 +14,10 @@ const plugin = {
 // Build recommended flat config referencing the plugin itself
 plugin.configs.recommended = {
   plugins: {
-    'gutenberg-compat': plugin,
+    'wp-gutenberg-compat': plugin,
   },
   rules: {
-    'gutenberg-compat/no-incompatible-version': 'error',
+    'wp-gutenberg-compat/no-incompatible-version': 'error',
   },
 };
 

@@ -39,7 +39,7 @@ describe('discoverWpPackages — error handling', () => {
 
     expect(result).toEqual([]);
     expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0]).toContain('[gutenberg-compat]');
+    expect(warnSpy.mock.calls[0][0]).toContain('[wp-gutenberg-compat]');
     expect(warnSpy.mock.calls[0][0]).toContain(path.join(tmpDir, 'package.json'));
   });
 
