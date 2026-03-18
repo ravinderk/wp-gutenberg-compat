@@ -12,54 +12,54 @@ let fixtureDir;
 let dataPath;
 
 beforeAll(() => {
-  fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gb-compat-theme-'));
+    fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gb-compat-theme-'));
 
-  // Write compat-data.json
-  dataPath = path.join(fixtureDir, 'compat-data.json');
-  fs.writeFileSync(dataPath, JSON.stringify(compatData));
+    // Write compat-data.json
+    dataPath = path.join(fixtureDir, 'compat-data.json');
+    fs.writeFileSync(dataPath, JSON.stringify(compatData));
 
-  // Create shared node_modules
-  const componentsDir = path.join(fixtureDir, 'node_modules', '@wordpress', 'components');
-  fs.mkdirSync(componentsDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(componentsDir, 'package.json'),
-    JSON.stringify({ name: '@wordpress/components', version: '28.0.0' }),
-  );
+    // Create shared node_modules
+    const componentsDir = path.join(fixtureDir, 'node_modules', '@wordpress', 'components');
+    fs.mkdirSync(componentsDir, { recursive: true });
+    fs.writeFileSync(
+        path.join(componentsDir, 'package.json'),
+        JSON.stringify({ name: '@wordpress/components', version: '28.0.0' }),
+    );
 
-  const beDir = path.join(fixtureDir, 'node_modules', '@wordpress', 'block-editor');
-  fs.mkdirSync(beDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(beDir, 'package.json'),
-    JSON.stringify({ name: '@wordpress/block-editor', version: '11.0.0' }),
-  );
+    const beDir = path.join(fixtureDir, 'node_modules', '@wordpress', 'block-editor');
+    fs.mkdirSync(beDir, { recursive: true });
+    fs.writeFileSync(
+        path.join(beDir, 'package.json'),
+        JSON.stringify({ name: '@wordpress/block-editor', version: '11.0.0' }),
+    );
 
-  // theme65: min WP 6.5 (theme style.css)
-  const theme65 = createFixtureSubdir(fixtureDir, 'theme65');
-  writeThemeHeader(theme65, '6.5');
-  fs.writeFileSync(
-    path.join(theme65, 'package.json'),
-    JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
-  );
+    // theme65: min WP 6.5 (theme style.css)
+    const theme65 = createFixtureSubdir(fixtureDir, 'theme65');
+    writeThemeHeader(theme65, '6.5');
+    fs.writeFileSync(
+        path.join(theme65, 'package.json'),
+        JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
+    );
 });
 
 const tester = new RuleTester({
-  languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
+    languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
 describe('wp-gutenberg-compat/no-incompatible-version — theme support', () => {
-  it('reads Requires at least from theme style.css', () => {
-    tester.run('no-incompatible-version', noIncompatibleVersion, {
-      valid: [],
-      invalid: [
-        // @wordpress/components 28.0.0 requires WP 6.8, but theme minWp is 6.5
-        // @wordpress/block-editor 11.0.0 requires WP 6.5 — compatible, so only 1 error
-        {
-          code: "const x = 1;",
-          options: [{ dataPath }],
-          filename: path.join(fixtureDir, 'theme65', 'test-file.js'),
-          errors: [{ messageId: 'incompatible' }],
-        },
-      ],
+    it('reads Requires at least from theme style.css', () => {
+        tester.run('no-incompatible-version', noIncompatibleVersion, {
+            valid: [],
+            invalid: [
+                // @wordpress/components 28.0.0 requires WP 6.8, but theme minWp is 6.5
+                // @wordpress/block-editor 11.0.0 requires WP 6.5 — compatible, so only 1 error
+                {
+                    code: 'const x = 1;',
+                    options: [{ dataPath }],
+                    filename: path.join(fixtureDir, 'theme65', 'test-file.js'),
+                    errors: [{ messageId: 'incompatible' }],
+                },
+            ],
+        });
     });
-  });
 });

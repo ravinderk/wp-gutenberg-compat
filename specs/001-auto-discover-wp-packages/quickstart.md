@@ -33,26 +33,24 @@ import path from 'node:path';
  * @returns {string[]} Deduplicated @wordpress/* package name strings. Returns [] on error.
  */
 export function discoverWpPackages(projectRoot) {
-  const pkgPath = path.join(projectRoot, 'package.json');
-  let pkg;
+    const pkgPath = path.join(projectRoot, 'package.json');
+    let pkg;
 
-  try {
-    const content = fs.readFileSync(pkgPath, 'utf8');
-    pkg = JSON.parse(content);
-  } catch (err) {
-    if (err.code !== 'ENOENT') {
-      console.warn(
-        `[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`,
-      );
+    try {
+        const content = fs.readFileSync(pkgPath, 'utf8');
+        pkg = JSON.parse(content);
+    } catch (err) {
+        if (err.code !== 'ENOENT') {
+            console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
+        }
+        return [];
     }
-    return [];
-  }
 
-  const deps = Object.keys(pkg.dependencies || {});
-  const devDeps = Object.keys(pkg.devDependencies || {});
-  const all = [...new Set([...deps, ...devDeps])];
+    const deps = Object.keys(pkg.dependencies || {});
+    const devDeps = Object.keys(pkg.devDependencies || {});
+    const all = [...new Set([...deps, ...devDeps])];
 
-  return all.filter((name) => name.startsWith('@wordpress/'));
+    return all.filter((name) => name.startsWith('@wordpress/'));
 }
 ```
 
@@ -64,16 +62,16 @@ export function discoverWpPackages(projectRoot) {
 
 Key test cases to cover (in order of spec priority):
 
-| # | Scenario | Expected result |
-|---|----------|----------------|
-| 1 | Valid `package.json` with `@wordpress/components` in `dependencies` | `['@wordpress/components']` |
-| 2 | Same package in both `dependencies` and `devDependencies` | Single entry (no duplicate) |
-| 3 | `@wordpress/*` packages in `devDependencies` only | All returned |
-| 4 | Non-`@wordpress` packages only | `[]` |
-| 5 | Missing `package.json` | `[]`, no throw |
-| 6 | Invalid JSON in `package.json` | `[]`, `console.warn` called once |
-| 7 | `package.json` with no `dependencies`/`devDependencies` keys | `[]` |
-| 8 | `package.json` with empty `dependencies: {}` | `[]` |
+| #   | Scenario                                                            | Expected result                  |
+| --- | ------------------------------------------------------------------- | -------------------------------- |
+| 1   | Valid `package.json` with `@wordpress/components` in `dependencies` | `['@wordpress/components']`      |
+| 2   | Same package in both `dependencies` and `devDependencies`           | Single entry (no duplicate)      |
+| 3   | `@wordpress/*` packages in `devDependencies` only                   | All returned                     |
+| 4   | Non-`@wordpress` packages only                                      | `[]`                             |
+| 5   | Missing `package.json`                                              | `[]`, no throw                   |
+| 6   | Invalid JSON in `package.json`                                      | `[]`, `console.warn` called once |
+| 7   | `package.json` with no `dependencies`/`devDependencies` keys        | `[]`                             |
+| 8   | `package.json` with empty `dependencies: {}`                        | `[]`                             |
 
 Run after writing: `npm test --workspace packages/eslint-plugin`
 
@@ -226,9 +224,10 @@ create(context) {
 ```
 
 **Key invariants preserved**:
+
 - All existing valid/invalid behaviour is unchanged for the `ImportDeclaration` path.
 - `pendingIncompatible.delete(source)` is called even when the import is
-  *compatible*, preventing a stale Program-node warning if the installed version
+  _compatible_, preventing a stale Program-node warning if the installed version
   changed between `create()` and `ImportDeclaration` handling.
 
 ---
@@ -242,11 +241,11 @@ In `beforeAll`, write a `package.json` into `fixtureDir`:
 ```js
 // packages.json in fixtureDir for discovery tests
 fs.writeFileSync(
-  path.join(fixtureDir, 'package.json'),
-  JSON.stringify({
-    dependencies: { '@wordpress/components': '^28.0.0' },
-    devDependencies: { '@wordpress/block-editor': '^11.0.0' },
-  }),
+    path.join(fixtureDir, 'package.json'),
+    JSON.stringify({
+        dependencies: { '@wordpress/components': '^28.0.0' },
+        devDependencies: { '@wordpress/block-editor': '^11.0.0' },
+    }),
 );
 ```
 

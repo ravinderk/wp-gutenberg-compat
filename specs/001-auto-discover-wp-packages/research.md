@@ -17,6 +17,7 @@ guards ESLint 8/9 differences for filename resolution
 The filesystem-walk fallback mirrors `findWpVersionFromPackageJson` already in the rule.
 
 **Alternatives considered**:
+
 - `process.cwd()` — rejected; ESLint can be run from a directory other than the
   project root, especially in monorepos and certain CI environments.
 - Requiring user configuration (e.g., `projectRoot` option) — rejected; violates
@@ -39,6 +40,7 @@ the absolute project root so multiple roots (e.g., nested packages linted togeth
 are handled correctly.
 
 **Alternatives considered**:
+
 - `WeakMap` — unsuitable; keys must be objects, not strings.
 - Per-file cache (inside `create()`) — satisfies FR-006 for single-file runs but
   would re-read `package.json` for every file in a multi-file run. Rejected.
@@ -60,6 +62,7 @@ warnings in the ESLint ecosystem. A distinct `messageId` helps users and tooling
 diagnostic.
 
 **Alternatives considered**:
+
 - Report on the first `ImportDeclaration` — confusing; the problematic package is
   not the one being imported.
 - Suppress for files with no imports — violates FR-007 ("regardless of whether that
@@ -80,6 +83,7 @@ in that set.
 Prevents duplicate warnings for the same package in the same file, satisfying SC-003.
 
 **Alternatives considered**:
+
 - Always use `Program` for discovered packages — worse DX; loses import-site context.
 - Report both nodes — violates SC-003 (zero duplicates).
 
@@ -97,6 +101,7 @@ default. The fallback chain (`getCwd → cwd → dirname(filename)`) ensures tes
 without needing to stub ESLint internals.
 
 **Alternatives considered**:
+
 - Monkey-patching `context.getCwd` in the test — fragile; depends on RuleTester
   internals that differ between ESLint 8 and 9.
 - Adding a `projectRoot` rule option purely for tests — adds unnecessary public API
@@ -118,6 +123,7 @@ The cost is acceptable because the read is guarded by the module-level cache (on
 per project root per process).
 
 **Alternatives considered**:
+
 - `fs.readFileSync` with a try/catch per the error contract — chosen.
 - `fs.promises.readFile` — requires making `create()` async, incompatible with
   ESLint's synchronous rule API.
@@ -134,6 +140,7 @@ npm scope convention. This is the same check the rule already uses in
 `ImportDeclaration` (`source.startsWith('@wordpress/')`).
 
 **Alternatives considered**:
+
 - Regex `/^@wordpress\//` — equivalent; `startsWith` is more readable.
 - Checking against a known allowlist — overly restrictive; new `@wordpress/*`
   packages would require updating the allowlist.
@@ -142,12 +149,12 @@ npm scope convention. This is the same check the rule already uses in
 
 ## Summary of Decisions
 
-| ID | Decision |
-|----|----------|
-| R-01 | `context.getCwd()` (ESLint 8) → `context.cwd` (ESLint 9) → `dirname(filename)` |
-| R-02 | Module-level `Map` cache keyed by absolute project root |
+| ID   | Decision                                                                             |
+| ---- | ------------------------------------------------------------------------------------ |
+| R-01 | `context.getCwd()` (ESLint 8) → `context.cwd` (ESLint 9) → `dirname(filename)`       |
+| R-02 | Module-level `Map` cache keyed by absolute project root                              |
 | R-03 | `Program` node + `incompatibleInstalled` messageId for non-import proactive warnings |
 | R-04 | `ImportDeclaration` takes precedence; `Program:exit` skips already-reported packages |
-| R-05 | Utility tested in isolation; rule tests use `filename`-in-fixtureDir fallback |
-| R-06 | Synchronous `fs.readFileSync` (consistent with rest of rule) |
-| R-07 | `startsWith('@wordpress/')` filter |
+| R-05 | Utility tested in isolation; rule tests use `filename`-in-fixtureDir fallback        |
+| R-06 | Synchronous `fs.readFileSync` (consistent with rest of rule)                         |
+| R-07 | `startsWith('@wordpress/')` filter                                                   |

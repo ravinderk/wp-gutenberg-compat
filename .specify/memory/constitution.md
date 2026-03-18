@@ -133,10 +133,10 @@ the eslint-plugin-wp-gutenberg-compat project.
 - All PRs and code reviews MUST verify compliance with these
   principles.
 - Amendments to this constitution require:
-  1. A PR modifying `.specify/memory/constitution.md`.
-  2. A version bump following semver (see versioning policy
-     in Principle V, applied to this document).
-  3. Updated `Last Amended` date.
+    1. A PR modifying `.specify/memory/constitution.md`.
+    2. A version bump following semver (see versioning policy
+       in Principle V, applied to this document).
+    3. Updated `Last Amended` date.
 - Complexity beyond what is described here MUST be justified
   in the relevant PR description.
 - When in doubt, default to simplicity and correctness.

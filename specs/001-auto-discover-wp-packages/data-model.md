@@ -10,13 +10,14 @@
 
 The output of `discoverWpPackages(projectRoot)`.
 
-| Field | Type | Constraints |
-|-------|------|-------------|
+| Field      | Type       | Constraints                                                       |
+| ---------- | ---------- | ----------------------------------------------------------------- |
 | `packages` | `string[]` | Each element starts with `@wordpress/`; no duplicates; length ≥ 0 |
 
 **Notes**:
+
 - Version strings are intentionally excluded. The utility is concerned only with
-  *which* WordPress packages are present, not *which versions* are installed. Version
+  _which_ WordPress packages are present, not _which versions_ are installed. Version
   resolution is already handled by `getInstalledVersion()` in the rule.
 - Order is not guaranteed and must not be relied upon by callers.
 - The empty array `[]` is the canonical "nothing found / error" value; the function
@@ -28,11 +29,12 @@ The output of `discoverWpPackages(projectRoot)`.
 
 Lives in `packages/eslint-plugin/src/rules/no-incompatible-version.js`.
 
-| Key | Type | Value Type | Description |
-|-----|------|-----------|-------------|
+| Key           | Type                     | Value Type | Description                                     |
+| ------------- | ------------------------ | ---------- | ----------------------------------------------- |
 | `projectRoot` | `string` (absolute path) | `string[]` | Cached `DiscoveryResult.packages` for that root |
 
 **Invariants**:
+
 - Keyed by the absolute, normalised path returned by `context.getCwd()` / `context.cwd`
   / `path.dirname(filename)`.
 - Written once per key per process lifetime; never mutated after first write.
@@ -45,12 +47,12 @@ Lives in `packages/eslint-plugin/src/rules/no-incompatible-version.js`.
 
 Computed inside `create()` for each file that is linted. Not persisted.
 
-| Field | Type | Source |
-|-------|------|--------|
-| `pkgName` | `string` | From `DiscoveryResult.packages` |
+| Field              | Type     | Source                                                         |
+| ------------------ | -------- | -------------------------------------------------------------- |
+| `pkgName`          | `string` | From `DiscoveryResult.packages`                                |
 | `installedVersion` | `string` | `getInstalledVersion(pkgName, fileDir)` (pre-release stripped) |
-| `requiredWp` | `string` | `getRequiredWpVersion(compatData, pkgName, installedVersion)` |
-| `minWp` | `string` | Resolved from rule options / `package.json` / PHP header |
+| `requiredWp`       | `string` | `getRequiredWpVersion(compatData, pkgName, installedVersion)`  |
+| `minWp`            | `string` | Resolved from rule options / `package.json` / PHP header       |
 
 **State machine**:
 
@@ -75,11 +77,11 @@ Computed inside `create()` for each file that is linted. Not persisted.
 
 ## Validation Rules
 
-| Rule | Entity | Condition |
-|------|--------|-----------|
-| V-01 | `DiscoveryResult` | All package names must start with `@wordpress/` |
-| V-02 | `DiscoveryResult` | No duplicate package names (enforced by `Set` during construction) |
-| V-03 | `DiscoveryCache` | Keys must be absolute paths (enforced by `path.resolve`) |
+| Rule | Entity                     | Condition                                                                                                                  |
+| ---- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| V-01 | `DiscoveryResult`          | All package names must start with `@wordpress/`                                                                            |
+| V-02 | `DiscoveryResult`          | No duplicate package names (enforced by `Set` during construction)                                                         |
+| V-03 | `DiscoveryCache`           | Keys must be absolute paths (enforced by `path.resolve`)                                                                   |
 | V-04 | `ProactiveIncompatibility` | Only created when `installedVersion` is non-null AND `requiredWp` is non-null AND `compareVersions(requiredWp, minWp) > 0` |
 
 ---

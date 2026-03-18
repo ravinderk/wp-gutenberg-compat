@@ -1,34 +1,34 @@
 {
-  "name": "eslint-plugin-wp-gutenberg-compat",
-  "version": "0.1.0",
-  "description": "ESLint plugin that warns when @wordpress/* packages require a higher WordPress version than your plugin's minimum",
-  "main": "src/index.js",
-  "exports": {
-    ".": "./src/index.js"
-  },
-  "files": [
-    "src"
-  ],
-  "scripts": {
-    "test": "vitest run"
-  },
-  "peerDependencies": {
-    "eslint": ">=8.0.0"
-  },
-  "devDependencies": {
-    "vitest": "^3.0.0"
-  },
-  "keywords": [
-    "wordpress",
-    "gutenberg",
-    "eslint",
-    "eslintplugin",
-    "compatibility"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat.git",
-    "directory": "packages/eslint-plugin"
-  }
+    "name": "eslint-plugin-wp-gutenberg-compat",
+    "version": "0.1.0",
+    "description": "ESLint plugin that warns when @wordpress/* packages require a higher WordPress version than your plugin's minimum",
+    "main": "src/index.js",
+    "exports": {
+        ".": "./src/index.js"
+    },
+    "files": [
+        "src"
+    ],
+    "scripts": {
+        "test": "vitest run"
+    },
+    "peerDependencies": {
+        "eslint": ">=8.0.0"
+    },
+    "devDependencies": {
+        "vitest": "^3.0.0"
+    },
+    "keywords": [
+        "wordpress",
+        "gutenberg",
+        "eslint",
+        "eslintplugin",
+        "compatibility"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat.git",
+        "directory": "packages/eslint-plugin"
+    }
 }

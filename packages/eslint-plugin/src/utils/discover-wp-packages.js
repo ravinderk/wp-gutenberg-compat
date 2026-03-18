@@ -12,13 +12,13 @@ const cache = new Map();
  * @returns {string|null}
  */
 function findProjectRoot(startDir) {
-  let dir = startDir;
-  while (true) {
-    if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
-    const parent = path.dirname(dir);
-    if (parent === dir) return null;
-    dir = parent;
-  }
+    let dir = startDir;
+    while (true) {
+        if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
+        const parent = path.dirname(dir);
+        if (parent === dir) return null;
+        dir = parent;
+    }
 }
 
 /**
@@ -34,36 +34,36 @@ function findProjectRoot(startDir) {
  * @returns {string[]}
  */
 function discoverWpPackages(startDir) {
-  const root = findProjectRoot(startDir);
-  if (!root) return [];
+    const root = findProjectRoot(startDir);
+    if (!root) return [];
 
-  if (cache.has(root)) return cache.get(root);
+    if (cache.has(root)) return cache.get(root);
 
-  const pkgPath = path.join(root, 'package.json');
-  let pkg;
-  try {
-    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  } catch (err) {
-    // Only warn when the file exists but JSON is malformed
-    if (err.code !== 'ENOENT') {
-      console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
+    const pkgPath = path.join(root, 'package.json');
+    let pkg;
+    try {
+        pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    } catch (err) {
+        // Only warn when the file exists but JSON is malformed
+        if (err.code !== 'ENOENT') {
+            console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
+        }
+        cache.set(root, []);
+        return [];
     }
-    cache.set(root, []);
-    return [];
-  }
 
-  const deps = Object.keys(pkg.dependencies || {});
-  const devDeps = Object.keys(pkg.devDependencies || {});
-  const wpPkgs = [...new Set([...deps, ...devDeps])].filter(k => k.startsWith('@wordpress/'));
-  cache.set(root, wpPkgs);
-  return wpPkgs;
+    const deps = Object.keys(pkg.dependencies || {});
+    const devDeps = Object.keys(pkg.devDependencies || {});
+    const wpPkgs = [...new Set([...deps, ...devDeps])].filter((k) => k.startsWith('@wordpress/'));
+    cache.set(root, wpPkgs);
+    return wpPkgs;
 }
 
 /**
  * Clear the module-level cache (for testing only).
  */
 function clearDiscoverCache() {
-  cache.clear();
+    cache.clear();
 }
 
 module.exports = { discoverWpPackages, clearDiscoverCache, findProjectRoot };

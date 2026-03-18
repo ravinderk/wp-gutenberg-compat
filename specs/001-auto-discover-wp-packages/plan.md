@@ -28,15 +28,15 @@ packages **not** already covered by discovery, preserving full backwards compati
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| **I. Accuracy-First** | ✅ PASS | Discovery adds no false positives: packages absent from compat data are silently skipped (spec Assumption 5). Malformed `package.json` falls back to empty list — no spurious warnings (FR-003, FR-004). |
-| **II. Zero-Config Defaults** | ✅ PASS | Discovery is automatic; no new configuration options required. Existing `requiresAtLeast` / `dataPath` options unchanged (FR-009). `context.getCwd()` / `context.cwd` resolved transparently. |
-| **III. Performance** | ✅ PASS | Module-level `Map` cache (keyed by project root) ensures `package.json` is read from disk exactly once per lint process invocation (SC-002, SC-004). `getInstalledVersion` is already called per package; no change to its call frequency. |
-| **IV. Test-Driven Development** | ✅ PASS | New utility gets its own test file. Rule tests are expanded with discovery-specific valid/invalid cases. All existing tests must pass unmodified (SC-005). |
-| **V. Strict Semantic Versioning** | ✅ PASS | Feature adds new proactive behaviour; no existing warnings are removed or changed. Classified as **MINOR** (new capability, backwards-compatible). Utility is internal; not part of public API. |
+| Principle                         | Status  | Notes                                                                                                                                                                                                                                      |
+| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **I. Accuracy-First**             | ✅ PASS | Discovery adds no false positives: packages absent from compat data are silently skipped (spec Assumption 5). Malformed `package.json` falls back to empty list — no spurious warnings (FR-003, FR-004).                                   |
+| **II. Zero-Config Defaults**      | ✅ PASS | Discovery is automatic; no new configuration options required. Existing `requiresAtLeast` / `dataPath` options unchanged (FR-009). `context.getCwd()` / `context.cwd` resolved transparently.                                              |
+| **III. Performance**              | ✅ PASS | Module-level `Map` cache (keyed by project root) ensures `package.json` is read from disk exactly once per lint process invocation (SC-002, SC-004). `getInstalledVersion` is already called per package; no change to its call frequency. |
+| **IV. Test-Driven Development**   | ✅ PASS | New utility gets its own test file. Rule tests are expanded with discovery-specific valid/invalid cases. All existing tests must pass unmodified (SC-005).                                                                                 |
+| **V. Strict Semantic Versioning** | ✅ PASS | Feature adds new proactive behaviour; no existing warnings are removed or changed. Classified as **MINOR** (new capability, backwards-compatible). Utility is internal; not part of public API.                                            |
 
 **Result**: All gates pass. No violations requiring justification.
 
@@ -98,6 +98,7 @@ differences for `filename` (`context.filename || context.getFilename()`), so the
 same dual-API pattern is idiomatic and safe.
 
 **Alternatives considered**:
+
 - `process.cwd()` — rejected because ESLint can be invoked from a different working
   directory than the project root; this would produce wrong results in monorepos and
   certain CI setups.
@@ -125,6 +126,7 @@ sets this precedent. FR-006 requires "once per lint run, not once per file"; a
 ESLint-internal lifecycle hooks.
 
 **Alternatives considered**:
+
 - Shared context via `context.getScope()` / `context.settings` — too indirect; does
   not survive across separate `create()` invocations for different files.
 - Invalidation on watch mode — out of scope; a process restart clears the module
@@ -149,6 +151,7 @@ header warnings). A distinct `messageId` lets tooling and users distinguish
 installed that this file doesn't use".
 
 **Alternatives considered**:
+
 - Report on the first `ImportDeclaration` of the file — ambiguous; the warning
   would appear on a different import than the problematic one.
 - Suppress warnings for files that don't import the package — violates FR-007
@@ -175,6 +178,7 @@ specific node (the import statement) is better DX than the Program node. The
 only the remainder.
 
 **Alternatives considered**:
+
 - Always report on `Program` for discovered packages, suppress `ImportDeclaration`
   for those packages — loses import-site precision for discovered packages.
 - Report both (Program + ImportDeclaration) — violates SC-003 (duplicates).
@@ -197,9 +201,9 @@ from `path.dirname(filename)` — same as the existing `findWpVersionFromPackage
 walk.
 
 **Alternatives considered**:
+
 - Mocking `context.getCwd()` — RuleTester does not expose easy hooks for this;
   the fixture-directory approach is simpler and tests the real code path.
-
 
 ---
 
@@ -213,11 +217,12 @@ walk.
 
 Returned by `discoverWpPackages(projectRoot)`.
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field      | Type       | Description                                                                                                             |
+| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `packages` | `string[]` | Deduplicated `@wordpress/*` package names found in `dependencies` ∪ `devDependencies`. No version strings — names only. |
 
 **Invariants**:
+
 - Every element begins with `@wordpress/`
 - No duplicates (Set-based deduplication before return)
 - Empty array `[]` is the valid "nothing found / error" value — never `null` / `undefined`
@@ -226,12 +231,13 @@ Returned by `discoverWpPackages(projectRoot)`.
 
 Module-level singleton in `no-incompatible-version.js`.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| _(key)_ | `string` | Absolute project root path |
+| Field     | Type       | Description                             |
+| --------- | ---------- | --------------------------------------- |
+| _(key)_   | `string`   | Absolute project root path              |
 | _(value)_ | `string[]` | Cached `DiscoveryResult.packages` array |
 
 **Invariants**:
+
 - Populated at most once per unique project root per process lifetime
 - Never mutated after first write (treat as immutable once set)
 
@@ -239,12 +245,12 @@ Module-level singleton in `no-incompatible-version.js`.
 
 Computed per `create()` invocation (per file) from `DiscoveryCache`.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pkgName` | `string` | `@wordpress/*` package name |
+| Field              | Type     | Description                                         |
+| ------------------ | -------- | --------------------------------------------------- |
+| `pkgName`          | `string` | `@wordpress/*` package name                         |
 | `installedVersion` | `string` | Resolved from `node_modules` (pre-release stripped) |
-| `requiredWp` | `string` | WP version from compat data |
-| `minWp` | `string` | Declared minimum WP version for this project |
+| `requiredWp`       | `string` | WP version from compat data                         |
+| `minWp`            | `string` | Declared minimum WP version for this project        |
 
 **State transition**: A `ProactiveIncompatibility` starts as "pending" when
 computed in `Program:enter`. If the same `pkgName` is encountered in an
@@ -272,13 +278,13 @@ Side-effects:
 
 **Error contract**:
 
-| Condition | Behaviour |
-|-----------|-----------|
-| `package.json` not found (`ENOENT`) | Return `[]` silently |
-| `package.json` unreadable (permissions) | Return `[]` silently |
-| `package.json` invalid JSON | `console.warn(...)` then return `[]` |
-| No `dependencies` / `devDependencies` keys | Return `[]` silently |
-| Zero `@wordpress/*` entries | Return `[]` silently |
+| Condition                                  | Behaviour                            |
+| ------------------------------------------ | ------------------------------------ |
+| `package.json` not found (`ENOENT`)        | Return `[]` silently                 |
+| `package.json` unreadable (permissions)    | Return `[]` silently                 |
+| `package.json` invalid JSON                | `console.warn(...)` then return `[]` |
+| No `dependencies` / `devDependencies` keys | Return `[]` silently                 |
+| Zero `@wordpress/*` entries                | Return `[]` silently                 |
 
 #### `no-incompatible-version` rule — enhanced `create()` contract
 
@@ -309,66 +315,62 @@ Deduplication guarantee:
 **Key implementation steps** (ordered by dependency):
 
 1. **Create `packages/eslint-plugin/src/utils/discover-wp-packages.js`**
-   - Export a single named function `discoverWpPackages(projectRoot)`
-   - Use `node:fs` (sync read — acceptable because called once and cached)
-   - Filter `Object.keys(deps)` for entries starting with `@wordpress/`
-   - Deduplicate with `[...new Set([...deps, ...devDeps])]`
+    - Export a single named function `discoverWpPackages(projectRoot)`
+    - Use `node:fs` (sync read — acceptable because called once and cached)
+    - Filter `Object.keys(deps)` for entries starting with `@wordpress/`
+    - Deduplicate with `[...new Set([...deps, ...devDeps])]`
 
 2. **Add `discover-wp-packages.test.js`**
-   - Test: valid `package.json` with mixed wp/non-wp packages → correct list
-   - Test: `package.json` with both `dependencies` and `devDependencies` containing
-     the same package → single entry returned
-   - Test: missing `package.json` → returns `[]`, no throw
-   - Test: malformed JSON → returns `[]`, `console.warn` called
-   - Test: `package.json` with no `dependencies`/`devDependencies` → returns `[]`
-   - Test: `package.json` with zero `@wordpress/*` packages → returns `[]`
+    - Test: valid `package.json` with mixed wp/non-wp packages → correct list
+    - Test: `package.json` with both `dependencies` and `devDependencies` containing
+      the same package → single entry returned
+    - Test: missing `package.json` → returns `[]`, no throw
+    - Test: malformed JSON → returns `[]`, `console.warn` called
+    - Test: `package.json` with no `dependencies`/`devDependencies` → returns `[]`
+    - Test: `package.json` with zero `@wordpress/*` packages → returns `[]`
 
 3. **Modify `no-incompatible-version.js`**
-   - Import `discoverWpPackages` at the top of the module
-   - Add module-level `const discoveryCache = new Map()`
-   - In `create()`, determine `projectRoot`:
-     ```js
-     const projectRoot =
-       (context.getCwd && context.getCwd()) ||
-       context.cwd ||
-       fileDir;
-     ```
-   - Call `discoverWpPackages` with cache:
-     ```js
-     if (!discoveryCache.has(projectRoot)) {
-       discoveryCache.set(projectRoot, discoverWpPackages(projectRoot));
-     }
-     const discoveredPackages = discoveryCache.get(projectRoot);
-     ```
-   - Compute proactive incompatibilities set in `create()` body (not in a handler)
-     so it runs once per file
-   - Track import-reported packages in a `Set` local to the `create()` closure
-   - Update `ImportDeclaration` handler: run existing logic; on report, add to
-     the "reported" set
-   - Add `Program:exit` handler: for each proactive incompatibility whose
-     `pkgName` is NOT in the "reported" set, call `context.report()` on the
-     `programNode` with `messageId: 'incompatibleInstalled'`
+    - Import `discoverWpPackages` at the top of the module
+    - Add module-level `const discoveryCache = new Map()`
+    - In `create()`, determine `projectRoot`:
+        ```js
+        const projectRoot = (context.getCwd && context.getCwd()) || context.cwd || fileDir;
+        ```
+    - Call `discoverWpPackages` with cache:
+        ```js
+        if (!discoveryCache.has(projectRoot)) {
+            discoveryCache.set(projectRoot, discoverWpPackages(projectRoot));
+        }
+        const discoveredPackages = discoveryCache.get(projectRoot);
+        ```
+    - Compute proactive incompatibilities set in `create()` body (not in a handler)
+      so it runs once per file
+    - Track import-reported packages in a `Set` local to the `create()` closure
+    - Update `ImportDeclaration` handler: run existing logic; on report, add to
+      the "reported" set
+    - Add `Program:exit` handler: for each proactive incompatibility whose
+      `pkgName` is NOT in the "reported" set, call `context.report()` on the
+      `programNode` with `messageId: 'incompatibleInstalled'`
 
 4. **Add discovery-related test cases to `no-incompatible-version.test.js`**
-   - Add fixture `package.json` to `fixtureDir` in `beforeAll`
-   - Valid case: discovered package whose WP requirement is met → no Program warning
-   - Invalid case: discovered package whose WP requirement exceeds `minWp` but NOT
-     imported in file → error on `Program` node with `incompatibleInstalled`
-   - Invalid case: discovered package whose WP requirement exceeds `minWp` AND IS
-     imported in file → exactly ONE error on `ImportDeclaration` node with
-     `incompatible` (not on `Program`)
-   - Valid case: `package.json` absent (no file in fixture) → rule falls back to
-     import-based detection; no crash
+    - Add fixture `package.json` to `fixtureDir` in `beforeAll`
+    - Valid case: discovered package whose WP requirement is met → no Program warning
+    - Invalid case: discovered package whose WP requirement exceeds `minWp` but NOT
+      imported in file → error on `Program` node with `incompatibleInstalled`
+    - Invalid case: discovered package whose WP requirement exceeds `minWp` AND IS
+      imported in file → exactly ONE error on `ImportDeclaration` node with
+      `incompatible` (not on `Program`)
+    - Valid case: `package.json` absent (no file in fixture) → rule falls back to
+      import-based detection; no crash
 
 ---
 
 ### Constitution Check (Post-Design)
 
-| Principle | Post-Design Status | Notes |
-|-----------|-------------------|-------|
-| **I. Accuracy-First** | ✅ PASS | No change to compat data lookups. Proactive check uses same `getRequiredWpVersion` + `compareVersions` logic. Empty discovery list = zero new warnings. |
-| **II. Zero-Config** | ✅ PASS | `projectRoot` resolved automatically; no new options added to rule schema. |
-| **III. Performance** | ✅ PASS | `discoverWpPackages` reads one file synchronously, called once per project root per process. Proactive incompatibility set computed once per `create()` call (not per node visit). |
-| **IV. TDD** | ✅ PASS | Utility has dedicated test file. Rule tests extended. SC-005 (existing tests unchanged) verified by keeping all existing test cases intact. |
-| **V. Semver** | ✅ PASS | Additive change. New `incompatibleInstalled` messageId added; `incompatible` messageId unchanged. Classified as MINOR. |
-
+| Principle             | Post-Design Status | Notes                                                                                                                                                                              |
+| --------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I. Accuracy-First** | ✅ PASS            | No change to compat data lookups. Proactive check uses same `getRequiredWpVersion` + `compareVersions` logic. Empty discovery list = zero new warnings.                            |
+| **II. Zero-Config**   | ✅ PASS            | `projectRoot` resolved automatically; no new options added to rule schema.                                                                                                         |
+| **III. Performance**  | ✅ PASS            | `discoverWpPackages` reads one file synchronously, called once per project root per process. Proactive incompatibility set computed once per `create()` call (not per node visit). |
+| **IV. TDD**           | ✅ PASS            | Utility has dedicated test file. Rule tests extended. SC-005 (existing tests unchanged) verified by keeping all existing test cases intact.                                        |
+| **V. Semver**         | ✅ PASS            | Additive change. New `incompatibleInstalled` messageId added; `incompatible` messageId unchanged. Classified as MINOR.                                                             |
