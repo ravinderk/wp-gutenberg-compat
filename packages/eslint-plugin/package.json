@@ -18,6 +18,13 @@
   "devDependencies": {
     "vitest": "^3.0.0"
   },
+  "keywords": [
+    "wordpress",
+    "gutenberg",
+    "eslint",
+    "eslintplugin",
+    "compatibility"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
