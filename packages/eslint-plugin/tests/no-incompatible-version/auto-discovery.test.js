@@ -53,8 +53,8 @@ const tester = new RuleTester({
 });
 
 describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () => {
-  // US1: package in dependencies (not imported) → incompatibleInstalled on Program node
-  it('US1: reports incompatibleInstalled for package in dependencies not imported in file', () => {
+  // US1: package in dependencies → incompatible on Program node
+  it('US1: reports incompatible for package in dependencies', () => {
     fs.writeFileSync(
       path.join(discoveryDir, 'package.json'),
       JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0' } }),
@@ -67,7 +67,7 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
           code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
-          errors: [{ messageId: 'incompatibleInstalled' }],
+          errors: [{ messageId: 'incompatible' }],
         },
       ],
     });
@@ -93,28 +93,8 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
     });
   });
 
-  // US1: dedup — package both in package.json AND imported → only incompatible on ImportDeclaration
-  it('US1: when package is also imported, reports incompatible on ImportDeclaration only (no duplicate)', () => {
-    fs.writeFileSync(
-      path.join(discoveryDir, 'package.json'),
-      JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0' } }),
-    );
-
-    tester.run('no-incompatible-version', noIncompatibleVersion, {
-      valid: [],
-      invalid: [
-        {
-          code: "import { Button } from '@wordpress/components';",
-          options: [{ dataPath: discoveryDataPath }],
-          filename: path.join(discoveryDir, 'test-file.js'),
-          errors: [{ messageId: 'incompatible' }],
-        },
-      ],
-    });
-  });
-
-  // US2: package in devDependencies (not imported) → incompatibleInstalled
-  it('US2: reports incompatibleInstalled for package in devDependencies not imported in file', () => {
+  // US2: package in devDependencies → incompatible
+  it('US2: reports incompatible for package in devDependencies', () => {
     fs.writeFileSync(
       path.join(discoveryDir, 'package.json'),
       JSON.stringify({ devDependencies: { '@wordpress/components': '^28.0.0' } }),
@@ -127,14 +107,14 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
           code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
-          errors: [{ messageId: 'incompatibleInstalled' }],
+          errors: [{ messageId: 'incompatible' }],
         },
       ],
     });
   });
 
-  // US2: package in both deps and devDeps, also imported → exactly one incompatible error
-  it('US2: package in both deps and devDeps and imported → single incompatible error, no incompatibleInstalled', () => {
+  // US2: package in both deps and devDeps → single incompatible error (deduplicated)
+  it('US2: package in both deps and devDeps → single incompatible error', () => {
     fs.writeFileSync(
       path.join(discoveryDir, 'package.json'),
       JSON.stringify({
@@ -147,7 +127,7 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
       valid: [],
       invalid: [
         {
-          code: "import { Button } from '@wordpress/components';",
+          code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
           errors: [{ messageId: 'incompatible' }],
@@ -162,7 +142,7 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
       valid: [],
       invalid: [
         {
-          code: "import { BlockControls } from '@wordpress/block-editor';",
+          code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
           errors: [{ messageId: 'missingMinWp' }],
@@ -171,39 +151,38 @@ describe('wp-gutenberg-compat/no-incompatible-version — auto-discovery', () =>
     });
   });
 
-  // US3: malformed package.json → project root found (file exists), plugin header provides version
-  it('US3: malformed package.json — import-based detection still works with plugin header', () => {
+  // US3: malformed package.json → project root found (file exists), plugin header provides version,
+  // but no packages discovered from malformed JSON
+  it('US3: malformed package.json — no packages discovered, no errors beyond missingMinWp if header absent', () => {
     fs.writeFileSync(path.join(discoveryDir, 'package.json'), '{ invalid json');
     writePluginHeader(discoveryDir, '6.4');
 
     tester.run('no-incompatible-version', noIncompatibleVersion, {
-      valid: [],
-      invalid: [
+      valid: [
         {
-          code: "import { BlockControls } from '@wordpress/block-editor';",
+          code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
-          errors: [{ messageId: 'incompatible' }],
         },
       ],
+      invalid: [],
     });
   });
 
-  // US3: empty package.json ({}) → plugin header provides version, import-based still works
-  it('US3: empty package.json {} — import-based detection still works with plugin header', () => {
+  // US3: empty package.json ({}) → no @wordpress packages → no errors
+  it('US3: empty package.json {} — no packages discovered, no errors', () => {
     fs.writeFileSync(path.join(discoveryDir, 'package.json'), '{}');
     writePluginHeader(discoveryDir, '6.4');
 
     tester.run('no-incompatible-version', noIncompatibleVersion, {
-      valid: [],
-      invalid: [
+      valid: [
         {
-          code: "import { BlockControls } from '@wordpress/block-editor';",
+          code: 'const x = 1;',
           options: [{ dataPath: discoveryDataPath }],
           filename: path.join(discoveryDir, 'test-file.js'),
-          errors: [{ messageId: 'incompatible' }],
         },
       ],
+      invalid: [],
     });
   });
 });

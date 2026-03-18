@@ -143,7 +143,7 @@ const rule = {
     type: 'problem',
     docs: {
       description:
-        'Disallow importing @wordpress/* packages at versions incompatible with the declared minimum WordPress version.',
+        'Disallow @wordpress/* packages at versions incompatible with the declared minimum WordPress version.',
       recommended: true,
     },
     schema: [
@@ -161,8 +161,6 @@ const rule = {
     messages: {
       incompatible:
         "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package.",
-      incompatibleInstalled:
-        "'{{pkgName}}' version {{installedVersion}} requires WordPress {{requiredWp}}, but your plugin declares a minimum of WordPress {{minWp}}. Either upgrade your minimum WP version or downgrade the package. (Detected from package.json)",
       missingMinWp:
         "Could not determine the minimum WordPress version. Add 'Requires at least: X.Y' to your plugin's main PHP file header or theme's style.css header.",
     },
@@ -193,68 +191,30 @@ const rule = {
     }
 
     // Discover installed @wordpress/* packages from the nearest package.json.
-    // Use fileDir as the starting point so that:
-    //   - In tests the fixture directory (which contains the test package.json) is found directly.
-    //   - In real projects the utility walks up from the source file to find the project root.
     if (!discoveryCache.has(fileDir)) {
       discoveryCache.set(fileDir, discoverWpPackages(fileDir));
     }
     const discoveredPackages = discoveryCache.get(fileDir);
 
-    // Build a map of discovered packages that are incompatible with minWp.
-    // Keyed by package name → { installedVersion, requiredWp }.
-    const proactiveMap = new Map();
-    for (const pkgName of discoveredPackages) {
-      const installedVersion = getInstalledVersion(pkgName, fileDir);
-      if (!installedVersion) continue;
-      const requiredWp = getRequiredWpVersion(compatData, pkgName, installedVersion);
-      if (!requiredWp) continue;
-      if (compareVersions(requiredWp, minWp) > 0) {
-        proactiveMap.set(pkgName, {
-          installedVersion: stripPreRelease(installedVersion),
-          requiredWp,
-        });
-      }
-    }
-
-    // Track packages already reported via ImportDeclaration to avoid duplicates.
-    const reportedByImport = new Set();
-
     return {
-      ImportDeclaration(node) {
-        const source = node.source.value;
-        if (!source || !source.startsWith('@wordpress/')) return;
-
-        const installedVersion = getInstalledVersion(source, fileDir);
-        if (!installedVersion) return;
-
-        const requiredWp = getRequiredWpVersion(compatData, source, installedVersion);
-        if (!requiredWp) return;
-
-        if (compareVersions(requiredWp, minWp) > 0) {
-          context.report({
-            node,
-            messageId: 'incompatible',
-            data: {
-              pkgName: source,
-              installedVersion: stripPreRelease(installedVersion),
-              requiredWp,
-              minWp,
-            },
-          });
-          // Mark as reported so Program:exit skips it.
-          reportedByImport.add(source);
-        }
-      },
-
-      'Program:exit'(programNode) {
-        for (const [pkgName, { installedVersion, requiredWp }] of proactiveMap) {
-          if (reportedByImport.has(pkgName)) continue;
-          context.report({
-            node: programNode,
-            messageId: 'incompatibleInstalled',
-            data: { pkgName, installedVersion, requiredWp, minWp },
-          });
+      Program(programNode) {
+        for (const pkgName of discoveredPackages) {
+          const installedVersion = getInstalledVersion(pkgName, fileDir);
+          if (!installedVersion) continue;
+          const requiredWp = getRequiredWpVersion(compatData, pkgName, installedVersion);
+          if (!requiredWp) continue;
+          if (compareVersions(requiredWp, minWp) > 0) {
+            context.report({
+              node: programNode,
+              messageId: 'incompatible',
+              data: {
+                pkgName,
+                installedVersion: stripPreRelease(installedVersion),
+                requiredWp,
+                minWp,
+              },
+            });
+          }
         }
       },
     };

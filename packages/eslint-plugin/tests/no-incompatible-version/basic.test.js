@@ -34,9 +34,32 @@ beforeAll(() => {
   );
 
   // Plugin subdirs with different "Requires at least" versions
-  writePluginHeader(createFixtureSubdir(fixtureDir, 'wp65'), '6.5');
-  writePluginHeader(createFixtureSubdir(fixtureDir, 'wp67'), '6.7');
-  writePluginHeader(createFixtureSubdir(fixtureDir, 'wp68'), '6.8');
+  // Each subdir gets a package.json listing the @wordpress deps
+  const wp65 = createFixtureSubdir(fixtureDir, 'wp65');
+  writePluginHeader(wp65, '6.5');
+  fs.writeFileSync(
+    path.join(wp65, 'package.json'),
+    JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
+  );
+
+  const wp67 = createFixtureSubdir(fixtureDir, 'wp67');
+  writePluginHeader(wp67, '6.7');
+  fs.writeFileSync(
+    path.join(wp67, 'package.json'),
+    JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
+  );
+
+  const wp68 = createFixtureSubdir(fixtureDir, 'wp68');
+  writePluginHeader(wp68, '6.8');
+  fs.writeFileSync(
+    path.join(wp68, 'package.json'),
+    JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
+  );
+
+  // Subdir with no @wordpress deps in package.json (for non-wp import test)
+  const wp65NoDeps = createFixtureSubdir(fixtureDir, 'wp65-no-deps');
+  writePluginHeader(wp65NoDeps, '6.5');
+  fs.writeFileSync(path.join(wp65NoDeps, 'package.json'), JSON.stringify({}));
 });
 
 const tester = new RuleTester({
@@ -47,37 +70,32 @@ describe('wp-gutenberg-compat/no-incompatible-version', () => {
   it('reports and passes expected cases', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
       valid: [
-        // @wordpress/block-editor 11.0.0 requires WP 6.5 — matches minWp
+        // All deps compatible when minWp is 6.8
         {
-          code: "import { BlockControls } from '@wordpress/block-editor';",
-          options: [{ dataPath }],
-          filename: path.join(fixtureDir, 'wp65', 'test-file.js'),
-        },
-        // @wordpress/components 28.0.0 requires WP 6.8 — minWp is 6.8 → OK
-        {
-          code: "import { Button } from '@wordpress/components';",
+          code: "const x = 1;",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'wp68', 'test-file.js'),
         },
-        // Non-@wordpress import — ignored
+        // No @wordpress deps in package.json — nothing to check
         {
           code: "import React from 'react';",
           options: [{ dataPath }],
-          filename: path.join(fixtureDir, 'wp65', 'test-file.js'),
+          filename: path.join(fixtureDir, 'wp65-no-deps', 'test-file.js'),
         },
       ],
 
       invalid: [
         // @wordpress/components 28.0.0 requires WP 6.8, but minWp is 6.5
+        // (block-editor 11.0.0 requires WP 6.5 — compatible, so only 1 error)
         {
-          code: "import { ProgressBar } from '@wordpress/components';",
+          code: "const x = 1;",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'wp65', 'test-file.js'),
           errors: [{ messageId: 'incompatible' }],
         },
         // @wordpress/components 28.0.0 requires WP 6.8, but minWp is 6.7
         {
-          code: "import { Button } from '@wordpress/components';",
+          code: "const x = 1;",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'wp67', 'test-file.js'),
           errors: [{ messageId: 'incompatible' }],

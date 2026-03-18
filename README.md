@@ -50,8 +50,8 @@ If neither is found, the rule reports an error asking you to add the header.
 
 ## How It Works
 
-1. The plugin intercepts `import` statements for `@wordpress/*` packages
-2. It reads the **installed version** of that package from your `node_modules`
+1. The plugin reads `@wordpress/*` packages from your `package.json` (both `dependencies` and `devDependencies`)
+2. It checks the **installed version** of each package from your `node_modules`
 3. It looks up which **WordPress version** is required for that package version using the compatibility data
 4. If the required WP version is **higher** than your declared minimum → reports an error
 

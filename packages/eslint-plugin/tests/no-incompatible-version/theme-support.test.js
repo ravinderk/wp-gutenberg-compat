@@ -34,7 +34,12 @@ beforeAll(() => {
   );
 
   // theme65: min WP 6.5 (theme style.css)
-  writeThemeHeader(createFixtureSubdir(fixtureDir, 'theme65'), '6.5');
+  const theme65 = createFixtureSubdir(fixtureDir, 'theme65');
+  writeThemeHeader(theme65, '6.5');
+  fs.writeFileSync(
+    path.join(theme65, 'package.json'),
+    JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0', '@wordpress/block-editor': '^11.0.0' } }),
+  );
 });
 
 const tester = new RuleTester({
@@ -44,18 +49,12 @@ const tester = new RuleTester({
 describe('wp-gutenberg-compat/no-incompatible-version — theme support', () => {
   it('reads Requires at least from theme style.css', () => {
     tester.run('no-incompatible-version', noIncompatibleVersion, {
-      valid: [
-        // @wordpress/block-editor 11.0.0 requires WP 6.5 — matches theme minWp 6.5
-        {
-          code: "import { BlockControls } from '@wordpress/block-editor';",
-          options: [{ dataPath }],
-          filename: path.join(fixtureDir, 'theme65', 'test-file.js'),
-        },
-      ],
+      valid: [],
       invalid: [
         // @wordpress/components 28.0.0 requires WP 6.8, but theme minWp is 6.5
+        // @wordpress/block-editor 11.0.0 requires WP 6.5 — compatible, so only 1 error
         {
-          code: "import { Button } from '@wordpress/components';",
+          code: "const x = 1;",
           options: [{ dataPath }],
           filename: path.join(fixtureDir, 'theme65', 'test-file.js'),
           errors: [{ messageId: 'incompatible' }],
