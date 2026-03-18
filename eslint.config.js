@@ -1,9 +1,14 @@
 'use strict';
 
+const path = require('path');
+const { includeIgnoreFile } = require('@eslint/compat');
 const prettierConfig = require('eslint-config-prettier');
+
+const prettierIgnorePath = path.resolve(__dirname, '.prettierignore');
 
 /** @type {import('eslint').Linter.Config[]} */
 module.exports = [
+    includeIgnoreFile(prettierIgnorePath),
     {
         files: ['**/*.js'],
         languageOptions: {
@@ -16,7 +21,4 @@ module.exports = [
         },
     },
     prettierConfig,
-    {
-        ignores: ['node_modules/', 'dist/', 'coverage/'],
-    },
 ];
