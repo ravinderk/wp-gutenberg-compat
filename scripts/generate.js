@@ -23,22 +23,8 @@ const GITHUB_API = 'https://api.github.com';
 const RAW_GH = 'https://raw.githubusercontent.com';
 const REPO = 'WordPress/gutenberg';
 
-/** Packages we track (the most commonly imported @wordpress/* packages). */
-const TRACKED_PACKAGES = [
-  'components',
-  'block-editor',
-  'blocks',
-  'data',
-  'element',
-  'hooks',
-  'i18n',
-  'api-fetch',
-  'compose',
-  'notices',
-  'primitives',
-  'icons',
-  'core-data',
-];
+/** Cache of discovered package directories per Gutenberg tag. */
+const packageListCache = new Map();
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -177,26 +163,56 @@ async function fetchGutenbergTags() {
 }
 
 /**
- * For a given Gutenberg tag, fetch the package.json version for each tracked package.
- * Uses raw.githubusercontent.com (no rate limit).
+ * Discover all package directory names under packages/ for a given Gutenberg tag.
+ * Uses the GitHub Contents API and caches results per tag.
+ */
+async function discoverPackageDirs(tagName) {
+  if (packageListCache.has(tagName)) return packageListCache.get(tagName);
+
+  const url = `${GITHUB_API}/repos/${REPO}/contents/packages?ref=${tagName}`;
+  const entries = await fetchJSON(url);
+  const dirs = entries
+    .filter((entry) => entry.type === 'dir')
+    .map((entry) => entry.name);
+
+  packageListCache.set(tagName, dirs);
+  return dirs;
+}
+
+/**
+ * For a given Gutenberg tag, discover all public @wordpress/* packages and
+ * return their versions. Excludes private packages and directories without
+ * a valid package.json.
  */
 async function fetchPackageVersionsForTag(tagName) {
+  const dirs = await discoverPackageDirs(tagName);
   const versions = {};
 
-  await Promise.all(
-    TRACKED_PACKAGES.map(async (pkg) => {
-      const url = `${RAW_GH}/${REPO}/${tagName}/packages/${pkg}/package.json`;
-      try {
-        const text = await fetchText(url);
-        const json = JSON.parse(text);
-        if (json.version) {
-          versions[`@wordpress/${pkg}`] = json.version;
+  // Process in batches of 20 to avoid overwhelming the network
+  const BATCH_SIZE = 20;
+  for (let i = 0; i < dirs.length; i += BATCH_SIZE) {
+    const batch = dirs.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (dir) => {
+        const url = `${RAW_GH}/${REPO}/${tagName}/packages/${dir}/package.json`;
+        try {
+          const text = await fetchText(url);
+          const json = JSON.parse(text);
+          if (
+            json.private ||
+            !json.name ||
+            !json.name.startsWith('@wordpress/') ||
+            !json.version
+          ) {
+            return;
+          }
+          versions[json.name] = json.version;
+        } catch {
+          // No package.json or fetch failed — skip
         }
-      } catch {
-        // Package didn't exist in this tag — skip
-      }
-    }),
-  );
+      }),
+    );
+  }
 
   return versions;
 }
