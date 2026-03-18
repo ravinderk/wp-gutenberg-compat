@@ -1,6 +1,6 @@
 const path = require('node:path');
 const fs = require('node:fs');
-const { discoverWpPackages } = require('../utils/discover-wp-packages.js');
+const { discoverWpPackages, findProjectRoot } = require('../utils/discover-wp-packages.js');
 
 /** Cache compat data across files within the same lint run. */
 let compatDataCache = null;
@@ -33,14 +33,8 @@ function loadCompatData(customPath) {
  * @returns {{ version: string|null, projectType: 'plugin'|'theme'|null, pluginFile: string|null }}
  */
 function findWpVersionFromHeader(startDir) {
-  let dir = startDir;
-  // Walk up to find the project root (directory containing package.json)
-  while (true) {
-    if (fs.existsSync(path.join(dir, 'package.json'))) break;
-    const parent = path.dirname(dir);
-    if (parent === dir) return { version: null, projectType: null, pluginFile: null };
-    dir = parent;
-  }
+  const dir = findProjectRoot(startDir);
+  if (!dir) return { version: null, projectType: null, pluginFile: null };
 
   const requiresAtLeastPattern = /Requires\s+at\s+least:\s*([\d.]+)/i;
 
@@ -188,13 +182,7 @@ const rule = {
 
     if (!minWp) {
       // Resolve project root to report this error only once per project.
-      let projectRoot = fileDir;
-      while (true) {
-        if (fs.existsSync(path.join(projectRoot, 'package.json'))) break;
-        const parent = path.dirname(projectRoot);
-        if (parent === projectRoot) break;
-        projectRoot = parent;
-      }
+      const projectRoot = findProjectRoot(fileDir) || fileDir;
 
       if (missingMinWpReported.has(projectRoot)) {
         return {};
@@ -226,13 +214,7 @@ const rule = {
     }
 
     // Resolve project root for deduplication.
-    let projectRoot = fileDir;
-    while (true) {
-      if (fs.existsSync(path.join(projectRoot, 'package.json'))) break;
-      const parent = path.dirname(projectRoot);
-      if (parent === projectRoot) break;
-      projectRoot = parent;
-    }
+    const projectRoot = findProjectRoot(fileDir) || fileDir;
 
     // Discover installed @wordpress/* packages from the nearest package.json.
     if (!discoveryCache.has(projectRoot)) {

@@ -66,4 +66,4 @@ function clearDiscoverCache() {
   cache.clear();
 }
 
-module.exports = { discoverWpPackages, clearDiscoverCache };
+module.exports = { discoverWpPackages, clearDiscoverCache, findProjectRoot };
