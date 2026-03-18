@@ -1,5 +1,8 @@
 # wp-gutenberg-compat
 
+[![CI](https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat/actions/workflows/tests.yml/badge.svg)](https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 > Verify that `@wordpress/*` packages in your code are compatible with your plugin's minimum supported WordPress version.
 
 ## What is this?
@@ -22,6 +25,11 @@ src/edit.js
 | ------------------------------------------------------------- | ---------------------------------------------- |
 | [`eslint-plugin-wp-gutenberg-compat`](packages/eslint-plugin) | ESLint rule that warns on incompatible imports |
 
+## Requirements
+
+- Node.js >= 18
+- ESLint >= 8.0.0
+
 ## Quick Start
 
 ```bash
@@ -32,9 +40,29 @@ npm install --save-dev eslint-plugin-wp-gutenberg-compat
 
 ```js
 // eslint.config.js
+const wpGutenbergCompat = require('eslint-plugin-wp-gutenberg-compat');
+
+module.exports = [wpGutenbergCompat.configs.recommended];
+```
+
+If your project uses ESM (`"type": "module"` in `package.json`):
+
+```js
+// eslint.config.js
 import wpGutenbergCompat from 'eslint-plugin-wp-gutenberg-compat';
 
 export default [wpGutenbergCompat.configs.recommended];
+```
+
+### Legacy Config (ESLint 8)
+
+```json
+{
+    "plugins": ["wp-gutenberg-compat"],
+    "rules": {
+        "wp-gutenberg-compat/no-incompatible-version": "error"
+    }
+}
 ```
 
 ### Version Detection
@@ -46,9 +74,32 @@ The plugin reads your minimum WordPress version from the `Requires at least` hea
 
 If neither is found, the rule reports an error asking you to add the header.
 
+## Rule Options
+
+### `dataPath`
+
+Path to a custom `compat-data.json` file. By default the plugin uses its bundled data.
+
+```js
+// eslint.config.js
+const wpGutenbergCompat = require('eslint-plugin-wp-gutenberg-compat');
+
+module.exports = [
+    {
+        plugins: { 'wp-gutenberg-compat': wpGutenbergCompat },
+        rules: {
+            'wp-gutenberg-compat/no-incompatible-version': [
+                'error',
+                { dataPath: './my-compat-data.json' },
+            ],
+        },
+    },
+];
+```
+
 ## How It Works
 
-1. The plugin reads `@wordpress/*` packages from your `package.json` (both `dependencies` and `devDependencies`)
+1. The plugin discovers `@wordpress/*` packages from the nearest `package.json` (both `dependencies` and `devDependencies`)
 2. It checks the **installed version** of each package from your `node_modules`
 3. It looks up which **WordPress version** is required for that package version using the compatibility data
 4. If the required WP version is **higher** than your declared minimum → reports an error
@@ -72,6 +123,10 @@ GITHUB_TOKEN=ghp_... node scripts/generate.js
 ## Tracked Packages
 
 Every `@wordpress/*` package published in Gutenberg is tracked automatically — no configuration needed. The compatibility data is regenerated daily from the latest Gutenberg release, so new packages are picked up as soon as they ship.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
 
