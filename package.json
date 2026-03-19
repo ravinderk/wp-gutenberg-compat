@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "CLI tool to verify @wordpress/* packages are compatible with your plugin's minimum supported WordPress version",
     "bin": {
-        "wp-gutenberg-compat": "./src/cli.js"
+        "wp-gutenberg-compat": "src/cli.js"
     },
     "files": [
         "src"
@@ -31,7 +31,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/ravinderk/wp-gutenberg-compat.git"
+        "url": "git+https://github.com/ravinderk/wp-gutenberg-compat.git"
     },
     "devDependencies": {
         "@eslint/compat": "^2.0.3",
