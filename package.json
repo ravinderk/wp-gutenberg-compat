@@ -26,6 +26,9 @@
         "cli"
     ],
     "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/ravinderk/wp-gutenberg-compat.git"
