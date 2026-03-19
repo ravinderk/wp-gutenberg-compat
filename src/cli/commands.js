@@ -43,7 +43,7 @@ function runInstallCommand(options) {
     }
 
     if (packageSpecs.length === 0) {
-        console.error(`\n${formatNoAutomaticDowngradeMessage(issues)}`);
+        console.error(`\n${formatNoAutomaticDowngradeMessage(issues)}\n`);
         return 1;
     }
 
@@ -52,17 +52,17 @@ function runInstallCommand(options) {
     const projectDir = findProjectRoot(options.dir) || options.dir;
     const packageManager = detectPackageManager(projectDir);
     if (!packageManager) {
-        console.error('✘ Could not determine a single package manager from lockfiles.');
+        console.error('\n✘ Could not determine a single package manager from lockfiles.');
         console.error(
             '  Add exactly one lockfile (bun.lockb/bun.lock, pnpm-lock.yaml, yarn.lock, package-lock.json or npm-shrinkwrap.json),',
         );
-        console.error('  or run one of the equivalent direct package-manager commands shown above.');
+        console.error('  or run one of the equivalent direct package-manager commands shown above.\n');
         return 1;
     }
 
     const ok = runInstall(projectDir, packageManager, packageSpecs);
     if (!ok) {
-        console.error('✘ Installation failed.');
+        console.error('\n✘ Installation failed.\n');
         return 1;
     }
 
