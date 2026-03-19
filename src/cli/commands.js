@@ -4,7 +4,12 @@ const { analyze } = require('../analyze.js');
 const { findProjectRoot } = require('../utils/discover-wp-packages.js');
 const { collectRecommendedInstallSpecs, resolveInstallSpecs } = require('./install-planning.js');
 const { detectPackageManager, runInstall } = require('./install-exec.js');
-const { formatIssue, printInstallReport, printSuggestedInstallCommands } = require('./output.js');
+const {
+    formatNoAutomaticDowngradeMessage,
+    formatIssuesReport,
+    printInstallReport,
+    printSuggestedInstallCommands,
+} = require('./output.js');
 
 function runAnalyze(options) {
     const issues = analyze(options);
@@ -14,9 +19,7 @@ function runAnalyze(options) {
         return { exitCode: 0, issues, packageSpecs: [] };
     }
 
-    for (const issue of issues) {
-        console.error(formatIssue(issue));
-    }
+    console.error(formatIssuesReport(issues));
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
     printSuggestedInstallCommands(packageSpecs);
@@ -32,7 +35,7 @@ function runInstallCommand(options) {
     }
 
     if (packageSpecs.length === 0) {
-        console.error('No compatible downgrade suggestions are available to install automatically.');
+        console.error(`\n${formatNoAutomaticDowngradeMessage(issues)}`);
         return 1;
     }
 

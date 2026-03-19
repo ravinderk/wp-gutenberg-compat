@@ -1,6 +1,7 @@
 'use strict';
 
 const { buildInstallCommand } = require('./install-exec.js');
+const { buildAsciiTable } = require('./table.js');
 
 function formatIssue(issue) {
     if (issue.type === 'missing-min-wp') {
@@ -28,11 +29,46 @@ function formatIssue(issue) {
     return `✘ Unknown issue: ${JSON.stringify(issue)}`;
 }
 
+function formatIssuesReport(issues) {
+    const messages = [];
+    const nonTabularIssues = issues.filter((issue) => issue.type !== 'incompatible');
+    const incompatibleIssues = issues.filter((issue) => issue.type === 'incompatible');
+
+    for (const issue of nonTabularIssues) {
+        messages.push(formatIssue(issue));
+    }
+
+    if (incompatibleIssues.length > 0) {
+        const rows = incompatibleIssues.map((issue) => [
+            issue.pkgName,
+            issue.installedVersion,
+            issue.requiredWp,
+            issue.minWp,
+            issue.recommendedVersion || 'none',
+        ]);
+
+        messages.push('Compatibility issues:\n');
+        messages.push(buildAsciiTable(['Package', 'Installed', 'Needs WP', 'Plugin Min', 'Suggested'], rows));
+    }
+
+    return messages.join('\n\n');
+}
+
+function formatNoAutomaticDowngradeMessage(issues) {
+    const incompatiblePackages = issues.filter((issue) => issue.type === 'incompatible').map((issue) => issue.pkgName);
+
+    if (incompatiblePackages.length === 1) {
+        return `No automatic downgrade is available for ${incompatiblePackages[0]}.`;
+    }
+
+    return 'No automatic downgrades are available for the incompatible package(s).';
+}
+
 function printInstallReport(issues, selectedSpecs, missingPackages, options) {
     const requestedMode = options.installAll ? 'all' : 'selected';
     const incompatibleCount = issues.filter((issue) => issue.type === 'incompatible').length;
 
-    console.error('\nInstall report:');
+    console.error('\nInstall summary:');
     console.error(`  Incompatible packages found: ${incompatibleCount}`);
     console.error(`  Install mode: ${requestedMode}`);
     console.error(`  Packages selected for install: ${selectedSpecs.length}`);
@@ -66,6 +102,8 @@ function printSuggestedInstallCommands(packageSpecs) {
 }
 
 module.exports = {
+    formatIssuesReport,
+    formatNoAutomaticDowngradeMessage,
     formatIssue,
     printInstallReport,
     printSuggestedInstallCommands,
