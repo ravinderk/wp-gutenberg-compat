@@ -52,13 +52,16 @@ function runInfo(options) {
         lines.push('');
         lines.push(`Compat data last updated: ${generated} (Gutenberg ${lastGutenbergTag})`);
 
+        console.log('');
         console.log(lines.join('\n'));
+        console.log('');
         return 0;
     }
 
     // Mode 2: with package name(s) — display the full compatibility matrix for each package
     let exitCode = 0;
 
+    console.log('');
     for (const pkgName of options.infoPackages) {
         if (!pkgName.startsWith('@wordpress/')) {
             console.error(`\n✘ '${pkgName}' is not tracked in compat data.`);
@@ -79,6 +82,7 @@ function runInfo(options) {
         console.log(`\n${pkgName}\n`);
         console.log(table.replace(/^/gm, '  '));
     }
+    console.log('');
 
     return exitCode;
 }
