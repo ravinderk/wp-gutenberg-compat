@@ -1,4 +1,4 @@
-# wp-gutenberg-compat
+# @ravi.nder/wp-gutenberg-compat
 
 [![CI](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml/badge.svg)](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -14,9 +14,9 @@ WordPress ships a bundled version of Gutenberg, and each Gutenberg release inclu
 ## How to use
 
 1. Open a terminal in your WordPress plugin directory.
-2. Run `npx wp-gutenberg-compat analyze` to see the compatibility report.
+2. Run `npx @ravi.nder/wp-gutenberg-compat analyze` to see the compatibility report.
 3. Review the recommendations.
-4. Run `npx wp-gutenberg-compat install` to automatically apply the compatible versions.
+4. Run `npx @ravi.nder/wp-gutenberg-compat install` to automatically apply the compatible versions.
 
 ## Contributing
 
