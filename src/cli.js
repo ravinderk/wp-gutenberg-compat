@@ -6,7 +6,7 @@ const { USAGE } = require('./cli/usage.js');
 const { buildInstallArgs, buildInstallCommand, detectPackageManager } = require('./cli/install-exec.js');
 const { collectRecommendedInstallSpecs } = require('./cli/install-planning.js');
 const { formatIssue, printInstallReport } = require('./cli/output.js');
-const { runAnalyze, runInstallCommand } = require('./cli/commands.js');
+const { runAnalyze, runInfo, runInstallCommand } = require('./cli/commands.js');
 
 function main() {
     const [, , command, ...rest] = process.argv;
@@ -16,7 +16,7 @@ function main() {
         process.exit(0);
     }
 
-    if (command !== 'analyze' && command !== 'install') {
+    if (command !== 'analyze' && command !== 'install' && command !== 'info') {
         console.error(`Unknown command: ${command}\n`);
         console.error(USAGE);
         process.exit(1);
@@ -31,6 +31,10 @@ function main() {
 
     if (command === 'analyze') {
         process.exit(runAnalyze(options).exitCode);
+    }
+
+    if (command === 'info') {
+        process.exit(runInfo(options));
     }
 
     process.exit(runInstallCommand(options));
@@ -50,5 +54,6 @@ module.exports = {
     parseArgs,
     printInstallReport,
     runAnalyze,
+    runInfo,
     runInstallCommand,
 };

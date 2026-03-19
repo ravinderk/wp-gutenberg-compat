@@ -15,6 +15,8 @@ Good for a quick, one-time check without adding a dependency to your project. Al
 ```sh
 npx @ravi.nder/wp-gutenberg-compat@latest analyze
 npx @ravi.nder/wp-gutenberg-compat@latest install
+npx @ravi.nder/wp-gutenberg-compat@latest info
+npx @ravi.nder/wp-gutenberg-compat@latest info @wordpress/block-editor @wordpress/data
 ```
 
 ### Option 2 — Install locally in your project (recommended for repeated use)
@@ -32,6 +34,7 @@ Better for CI pipelines and teams, since the version is pinned and there's no ne
     ```json
     {
         "scripts": {
+            "info": "wp-gutenberg-compat info",
             "compat": "wp-gutenberg-compat analyze",
             "compat:fix": "wp-gutenberg-compat install"
         }
