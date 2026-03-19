@@ -13,6 +13,7 @@ on:
 
 permissions:
     contents: write
+    pull-requests: write
 
 jobs:
     generate:
@@ -51,11 +52,28 @@ jobs:
                   TAG=$(node -e "const d=require('./src/data/compat-data.json'); console.log(d.lastGutenbergTag)")
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-            - name: Commit updated compat data
+            - name: Create branch and commit updated compat data
               if: steps.diff.outputs.changed == 'true'
+              id: commit
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
+                  BRANCH="chore/update-compat-data-${{ steps.tag.outputs.tag }}"
+                  git checkout -b "$BRANCH"
                   git add src/data/compat-data.json
                   git commit -m "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}"
-                  git push
+                  git push origin "$BRANCH"
+                  echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+            - name: Open pull request
+              if: steps.diff.outputs.changed == 'true'
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh pr create \
+                    --head "${{ steps.commit.outputs.branch }}" \
+                    --base master \
+                    --title "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}" \
+                    --body "Automated update of compatibility data for Gutenberg ${{ steps.tag.outputs.tag }}." \
+                    --assignee "github-actions[bot]" \
+                    --reviewer ravinderk
