@@ -48,7 +48,7 @@ describe('cli output formatting', () => {
         expect(report).toContain('@wordpress/views');
         expect(report).toContain('@wordpress/data');
         expect(report).toContain('none');
-        expect(report).toContain('10.4.0');
+        expect(report).toContain('~10.4.0');
     });
 
     it('formatNoAutomaticDowngradeMessage names a single incompatible package', () => {

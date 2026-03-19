@@ -58,11 +58,11 @@ describe('cli install helpers', () => {
             },
         ]);
 
-        expect(specs).toEqual(['@wordpress/components@11.0.0']);
+        expect(specs).toEqual(['@wordpress/components@~11.0.0']);
     });
 
     it('resolveInstallSpecs validates install target mode and selects requested package specs', () => {
-        const packageSpecs = ['@wordpress/components@11.0.0', '@wordpress/block-editor@12.0.0'];
+        const packageSpecs = ['@wordpress/components@~11.0.0', '@wordpress/block-editor@~12.0.0'];
 
         const missingTarget = cli.resolveInstallSpecs(packageSpecs, {
             installAll: false,
@@ -88,7 +88,7 @@ describe('cli install helpers', () => {
             packageNames: ['@wordpress/components', '@wordpress/unused'],
         });
         expect(selectiveTarget.ok).toBe(true);
-        expect(selectiveTarget.selectedSpecs).toEqual(['@wordpress/components@11.0.0']);
+        expect(selectiveTarget.selectedSpecs).toEqual(['@wordpress/components@~11.0.0']);
         expect(selectiveTarget.missingPackages).toEqual(['@wordpress/unused']);
     });
 

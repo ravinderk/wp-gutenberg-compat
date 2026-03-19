@@ -3,6 +3,10 @@
 const { buildInstallCommand } = require('./install-exec.js');
 const { buildAsciiTable } = require('./table.js');
 
+function formatRecommendedRange(version) {
+    return version ? `~${version}` : null;
+}
+
 function formatIssue(issue) {
     if (issue.type === 'missing-min-wp') {
         if (issue.projectType === 'plugin') {
@@ -15,8 +19,9 @@ function formatIssue(issue) {
     }
 
     if (issue.type === 'incompatible') {
-        const recommendation = issue.recommendedVersion
-            ? ` Recommended compatible version: ${issue.pkgName}@${issue.recommendedVersion}.`
+        const recommendedRange = formatRecommendedRange(issue.recommendedVersion);
+        const recommendation = recommendedRange
+            ? ` Recommended compatible version: ${issue.pkgName}@${recommendedRange}.`
             : '';
 
         return (
@@ -44,7 +49,7 @@ function formatIssuesReport(issues) {
             issue.installedVersion,
             issue.requiredWp,
             issue.minWp,
-            issue.recommendedVersion || 'none',
+            formatRecommendedRange(issue.recommendedVersion) || 'none',
         ]);
 
         messages.push('Compatibility issues:\n');
