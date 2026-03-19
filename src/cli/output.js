@@ -52,7 +52,8 @@ function formatIssuesReport(issues) {
             formatRecommendedRange(issue.recommendedVersion) || 'none',
         ]);
 
-        messages.push('Compatibility issues:\n');
+        const heading = `Compatibility issues (${incompatibleIssues.length})`;
+        messages.push(`${heading}\n${'-'.repeat(heading.length)}`);
         messages.push(buildAsciiTable(['Package', 'Installed', 'Needs WP', 'Plugin Min', 'Suggested'], rows));
     }
 

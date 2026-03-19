@@ -19,7 +19,7 @@ function runAnalyze(options) {
         return { exitCode: 0, issues, packageSpecs: [] };
     }
 
-    console.error(formatIssuesReport(issues));
+    console.error(`\n${formatIssuesReport(issues)}\n`);
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
     const projectDir = findProjectRoot(options.dir) || options.dir;
