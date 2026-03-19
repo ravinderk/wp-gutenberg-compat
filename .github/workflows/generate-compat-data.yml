@@ -68,5 +68,4 @@ jobs:
                     --base master \
                     --title "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}" \
                     --body "Automated update of compatibility data for Gutenberg ${{ steps.tag.outputs.tag }}." \
-                    --assignee "github-actions[bot]" \
                     --reviewer ravinderk
