@@ -22,7 +22,9 @@ function runAnalyze(options) {
     console.error(formatIssuesReport(issues));
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
-    printSuggestedInstallCommands(packageSpecs);
+    const projectDir = findProjectRoot(options.dir) || options.dir;
+    const packageManager = detectPackageManager(projectDir);
+    printSuggestedInstallCommands(packageSpecs, packageManager);
 
     return { exitCode: 1, issues, packageSpecs };
 }

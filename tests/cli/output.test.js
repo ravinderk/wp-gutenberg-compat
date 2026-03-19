@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
 import { buildAsciiTable } from '../../src/cli/table.js';
-import { formatIssuesReport, formatNoAutomaticDowngradeMessage } from '../../src/cli/output.js';
+import {
+    formatIssuesReport,
+    formatNoAutomaticDowngradeMessage,
+    printSuggestedInstallCommands,
+} from '../../src/cli/output.js';
 
 describe('cli output formatting', () => {
     it('buildAsciiTable renders a dashed ASCII table', () => {
@@ -56,5 +60,40 @@ describe('cli output formatting', () => {
         ]);
 
         expect(message).toBe('No automatic downgrade is available for @wordpress/views.');
+    });
+
+    it('printSuggestedInstallCommands shows only the detected package manager command', () => {
+        const output = [];
+        const originalError = console.error;
+        console.error = (line) => output.push(line);
+
+        try {
+            printSuggestedInstallCommands(['@wordpress/components@11.0.0'], 'pnpm');
+        } finally {
+            console.error = originalError;
+        }
+
+        expect(output).toContain('\nEquivalent direct package-manager commands:');
+        expect(output).toContain('  pnpm add @wordpress/components@11.0.0');
+        expect(output).not.toContain('  npm install @wordpress/components@11.0.0');
+        expect(output).not.toContain('  yarn add @wordpress/components@11.0.0');
+        expect(output).not.toContain('  bun add @wordpress/components@11.0.0');
+    });
+
+    it('printSuggestedInstallCommands falls back to all supported package-manager commands', () => {
+        const output = [];
+        const originalError = console.error;
+        console.error = (line) => output.push(line);
+
+        try {
+            printSuggestedInstallCommands(['@wordpress/components@11.0.0']);
+        } finally {
+            console.error = originalError;
+        }
+
+        expect(output).toContain('  npm install @wordpress/components@11.0.0');
+        expect(output).toContain('  yarn add @wordpress/components@11.0.0');
+        expect(output).toContain('  pnpm add @wordpress/components@11.0.0');
+        expect(output).toContain('  bun add @wordpress/components@11.0.0');
     });
 });

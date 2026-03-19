@@ -88,14 +88,15 @@ function printInstallReport(issues, selectedSpecs, missingPackages, options) {
     }
 }
 
-function printSuggestedInstallCommands(packageSpecs) {
+function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = null) {
     if (packageSpecs.length === 0) return;
 
     console.error('\nSuggested next step:');
     console.error('  wp-gutenberg-compat install --all');
 
     console.error('\nEquivalent direct package-manager commands:');
-    for (const pm of ['npm', 'yarn', 'pnpm', 'bun']) {
+    const packageManagers = detectedPackageManager ? [detectedPackageManager] : ['npm', 'yarn', 'pnpm', 'bun'];
+    for (const pm of packageManagers) {
         const command = buildInstallCommand(pm, packageSpecs);
         console.error(`  ${command}`);
     }
