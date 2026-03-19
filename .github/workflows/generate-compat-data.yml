@@ -31,8 +31,8 @@ jobs:
               run: npm ci
 
             - name: Force refresh compat data
-              if: inputs.force_refresh == true
-              run: rm -f packages/data/compat-data.json
+              if: inputs.force_refresh == 'true'
+              run: rm -f src/data/compat-data.json
 
             - name: Run scraper
               env:
@@ -42,13 +42,13 @@ jobs:
             - name: Check for changes
               id: diff
               run: |
-                  git diff --quiet packages/data/compat-data.json && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+                  git diff --quiet src/data/compat-data.json && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
             - name: Read latest tag from data
               if: steps.diff.outputs.changed == 'true'
               id: tag
               run: |
-                  TAG=$(node -e "const d=require('./packages/data/compat-data.json'); console.log(d.lastGutenbergTag)")
+                  TAG=$(node -e "const d=require('./src/data/compat-data.json'); console.log(d.lastGutenbergTag)")
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
             - name: Commit updated compat data
@@ -56,6 +56,6 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git add packages/data/compat-data.json
+                  git add src/data/compat-data.json
                   git commit -m "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}"
                   git push

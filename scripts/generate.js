@@ -4,7 +4,7 @@
  * Data scraper for wp-gutenberg-compat.
  *
  * Maps WordPress versions → Gutenberg versions → @wordpress/* package versions
- * and writes the result to packages/data/compat-data.json.
+ * and writes the result to src/data/compat-data.json.
  *
  * Usage:
  *   GITHUB_TOKEN=ghp_... node scripts/generate.js
@@ -16,7 +16,7 @@ import path from 'node:path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const DATA_FILE = path.join(ROOT, 'packages', 'eslint-plugin', 'src', 'data', 'compat-data.json');
+const DATA_FILE = path.join(ROOT, 'src', 'data', 'compat-data.json');
 const FALLBACK_MAP_FILE = path.join(__dirname, 'wp-gb-map.json');
 
 const GITHUB_API = 'https://api.github.com';
