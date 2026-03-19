@@ -69,26 +69,17 @@ function formatNoAutomaticDowngradeMessage(issues) {
     return 'No automatic downgrades are available for the incompatible package(s).';
 }
 
-function printInstallReport(issues, selectedSpecs, missingPackages, options) {
-    const requestedMode = options.installAll ? 'all' : 'selected';
+function printInstallReport(issues, packageSpecs) {
     const incompatibleCount = issues.filter((issue) => issue.type === 'incompatible').length;
 
     console.error('\nInstall summary:');
     console.error(`  Incompatible packages found: ${incompatibleCount}`);
-    console.error(`  Install mode: ${requestedMode}`);
-    console.error(`  Packages selected for install: ${selectedSpecs.length}`);
+    console.error(`  Packages selected for install: ${packageSpecs.length}`);
 
-    if (selectedSpecs.length > 0) {
-        console.error('  Selected package specs:');
-        for (const spec of selectedSpecs) {
+    if (packageSpecs.length > 0) {
+        console.error('  Recommended package specs:');
+        for (const spec of packageSpecs) {
             console.error(`    - ${spec}`);
-        }
-    }
-
-    if (missingPackages.length > 0) {
-        console.error('  Requested packages with no recommended downgrade:');
-        for (const pkgName of missingPackages) {
-            console.error(`    - ${pkgName}`);
         }
     }
 }
@@ -97,7 +88,7 @@ function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = nu
     if (packageSpecs.length === 0) return;
 
     console.error('\nSuggested next step:');
-    console.error('  wp-gutenberg-compat install --all');
+    console.error('  wp-gutenberg-compat install');
 
     console.error('\nEquivalent direct package-manager commands:');
     const packageManagers = detectedPackageManager ? [detectedPackageManager] : ['npm', 'yarn', 'pnpm', 'bun'];

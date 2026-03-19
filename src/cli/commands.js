@@ -2,7 +2,7 @@
 
 const { analyze } = require('../analyze.js');
 const { findProjectRoot } = require('../utils/discover-wp-packages.js');
-const { collectRecommendedInstallSpecs, resolveInstallSpecs } = require('./install-planning.js');
+const { collectRecommendedInstallSpecs } = require('./install-planning.js');
 const { detectPackageManager, runInstall } = require('./install-exec.js');
 const {
     formatNoAutomaticDowngradeMessage,
@@ -30,6 +30,12 @@ function runAnalyze(options) {
 }
 
 function runInstallCommand(options) {
+    if (options.unexpectedArgs.length > 0) {
+        console.error(`✘ The install command does not accept extra arguments: ${options.unexpectedArgs.join(', ')}`);
+        console.error('  Usage: wp-gutenberg-compat install [--dir <path>]');
+        return 1;
+    }
+
     const { issues, packageSpecs } = runAnalyze(options);
 
     if (issues.length === 0) {
@@ -41,20 +47,7 @@ function runInstallCommand(options) {
         return 1;
     }
 
-    const resolution = resolveInstallSpecs(packageSpecs, options);
-    if (!resolution.ok) {
-        console.error(`✘ ${resolution.reason}`);
-        console.error('  Usage: wp-gutenberg-compat install <package-name> [...] | --all');
-        return 1;
-    }
-
-    const { selectedSpecs, missingPackages } = resolution;
-    printInstallReport(issues, selectedSpecs, missingPackages, options);
-
-    if (selectedSpecs.length === 0) {
-        console.error('✘ No requested packages have a recommended compatible downgrade to install.');
-        return 1;
-    }
+    printInstallReport(issues, packageSpecs);
 
     const projectDir = findProjectRoot(options.dir) || options.dir;
     const packageManager = detectPackageManager(projectDir);
@@ -67,7 +60,7 @@ function runInstallCommand(options) {
         return 1;
     }
 
-    const ok = runInstall(projectDir, packageManager, selectedSpecs);
+    const ok = runInstall(projectDir, packageManager, packageSpecs);
     if (!ok) {
         console.error('✘ Installation failed.');
         return 1;

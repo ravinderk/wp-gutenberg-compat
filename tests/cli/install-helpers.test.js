@@ -24,24 +24,20 @@ describe('cli install helpers', () => {
         const parsed = cli.parseArgs(['node', 'src/cli.js', 'install', '--dir', '/tmp/demo']);
 
         expect(parsed.dir).toBe(path.resolve('/tmp/demo'));
-        expect(parsed.installAll).toBe(false);
-        expect(parsed.packageNames).toEqual([]);
+        expect(parsed.unexpectedArgs).toEqual([]);
     });
 
-    it('parseArgs captures install target flags and package names', () => {
-        const allParsed = cli.parseArgs(['node', 'src/cli.js', 'install', '--all']);
-        expect(allParsed.installAll).toBe(true);
-        expect(allParsed.packageNames).toEqual([]);
-
-        const selectiveParsed = cli.parseArgs([
+    it('parseArgs collects unsupported install arguments for validation', () => {
+        const parsed = cli.parseArgs([
             'node',
             'src/cli.js',
             'install',
+            '--all',
             '@wordpress/components',
             '@wordpress/block-editor',
         ]);
-        expect(selectiveParsed.installAll).toBe(false);
-        expect(selectiveParsed.packageNames).toEqual(['@wordpress/components', '@wordpress/block-editor']);
+
+        expect(parsed.unexpectedArgs).toEqual(['--all', '@wordpress/components', '@wordpress/block-editor']);
     });
 
     it('collectRecommendedInstallSpecs de-duplicates suggested package specs', () => {
@@ -59,37 +55,6 @@ describe('cli install helpers', () => {
         ]);
 
         expect(specs).toEqual(['@wordpress/components@~11.0.0']);
-    });
-
-    it('resolveInstallSpecs validates install target mode and selects requested package specs', () => {
-        const packageSpecs = ['@wordpress/components@~11.0.0', '@wordpress/block-editor@~12.0.0'];
-
-        const missingTarget = cli.resolveInstallSpecs(packageSpecs, {
-            installAll: false,
-            packageNames: [],
-        });
-        expect(missingTarget.ok).toBe(false);
-
-        const conflictingTarget = cli.resolveInstallSpecs(packageSpecs, {
-            installAll: true,
-            packageNames: ['@wordpress/components'],
-        });
-        expect(conflictingTarget.ok).toBe(false);
-
-        const allTarget = cli.resolveInstallSpecs(packageSpecs, {
-            installAll: true,
-            packageNames: [],
-        });
-        expect(allTarget.ok).toBe(true);
-        expect(allTarget.selectedSpecs).toEqual(packageSpecs);
-
-        const selectiveTarget = cli.resolveInstallSpecs(packageSpecs, {
-            installAll: false,
-            packageNames: ['@wordpress/components', '@wordpress/unused'],
-        });
-        expect(selectiveTarget.ok).toBe(true);
-        expect(selectiveTarget.selectedSpecs).toEqual(['@wordpress/components@~11.0.0']);
-        expect(selectiveTarget.missingPackages).toEqual(['@wordpress/unused']);
     });
 
     it('detectPackageManager returns a manager only when exactly one is detected', () => {

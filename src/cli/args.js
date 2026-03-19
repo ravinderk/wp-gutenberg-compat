@@ -6,8 +6,7 @@ function parseArgs(argv) {
     const args = argv.slice(2); // drop node + script
     const options = {
         dir: process.cwd(),
-        installAll: false,
-        packageNames: [],
+        unexpectedArgs: [],
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -18,13 +17,8 @@ function parseArgs(argv) {
             continue;
         }
 
-        if (args[i] === '--all') {
-            options.installAll = true;
-            continue;
-        }
-
-        if (!args[i].startsWith('-')) {
-            options.packageNames.push(args[i]);
+        if (args[i] !== '--help' && args[i] !== '-h') {
+            options.unexpectedArgs.push(args[i]);
         }
     }
 

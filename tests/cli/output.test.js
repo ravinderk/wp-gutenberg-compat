@@ -73,6 +73,8 @@ describe('cli output formatting', () => {
             console.error = originalError;
         }
 
+        expect(output).toContain('  wp-gutenberg-compat install');
+        expect(output).not.toContain('  wp-gutenberg-compat install --all');
         expect(output).toContain('\nEquivalent direct package-manager commands:');
         expect(output).toContain('  pnpm add @wordpress/components@11.0.0');
         expect(output).not.toContain('  npm install @wordpress/components@11.0.0');

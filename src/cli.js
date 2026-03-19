@@ -4,11 +4,7 @@
 const { parseArgs } = require('./cli/args.js');
 const { USAGE } = require('./cli/usage.js');
 const { buildInstallArgs, buildInstallCommand, detectPackageManager } = require('./cli/install-exec.js');
-const {
-    collectRecommendedInstallSpecs,
-    getPackageNameFromSpec,
-    resolveInstallSpecs,
-} = require('./cli/install-planning.js');
+const { collectRecommendedInstallSpecs } = require('./cli/install-planning.js');
 const { formatIssue, printInstallReport } = require('./cli/output.js');
 const { runAnalyze, runInstallCommand } = require('./cli/commands.js');
 
@@ -50,11 +46,9 @@ module.exports = {
     collectRecommendedInstallSpecs,
     detectPackageManager,
     formatIssue,
-    getPackageNameFromSpec,
     main,
     parseArgs,
     printInstallReport,
-    resolveInstallSpecs,
     runAnalyze,
     runInstallCommand,
 };
