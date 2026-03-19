@@ -6,7 +6,8 @@
         "wp-gutenberg-compat": "./src/cli.js"
     },
     "files": [
-        "src"
+        "src",
+        "CHANGELOG.md"
     ],
     "scripts": {
         "generate": "node scripts/generate.js",
