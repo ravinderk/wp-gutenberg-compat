@@ -1,4 +1,4 @@
-# eslint-plugin-wp-gutenberg-compat Development Guidelines
+# wp-gutenberg-compat Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2026-03-17
 

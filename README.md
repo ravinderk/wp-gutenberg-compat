@@ -1,6 +1,6 @@
 # wp-gutenberg-compat
 
-[![CI](https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat/actions/workflows/tests.yml/badge.svg)](https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat/actions/workflows/tests.yml)
+[![CI](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml/badge.svg)](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 > Verify that `@wordpress/*` packages in your project are compatible with your plugin's minimum supported WordPress version.
@@ -21,7 +21,7 @@ WordPress ships a bundled version of Gutenberg, and each Gutenberg release inclu
 
 | Package                               | Description                                      |
 | ------------------------------------- | ------------------------------------------------ |
-| [`wp-gutenberg-compat`](packages/cli) | CLI tool to audit @wordpress/\* package versions |
+| `wp-gutenberg-compat` | CLI tool to audit @wordpress/\* package versions |
 
 ## Requirements
 

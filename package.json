@@ -28,7 +28,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ravinderk/eslint-plugin-wp-gutenberg-compat.git"
+        "url": "https://github.com/ravinderk/wp-gutenberg-compat.git"
     },
     "devDependencies": {
         "@eslint/compat": "^2.0.3",
