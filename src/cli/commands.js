@@ -11,7 +11,14 @@ const {
     printSuggestedInstallCommands,
 } = require('./output.js');
 
+function resolveProjectContext(dir) {
+    const projectDir = findProjectRoot(dir) || dir;
+    const packageManager = detectPackageManager(projectDir);
+    return { projectDir, packageManager };
+}
+
 function runAnalyze(options) {
+    const showSuggestedCommands = options.showSuggestedCommands !== false;
     const issues = analyze(options);
 
     if (issues.length === 0) {
@@ -22,9 +29,10 @@ function runAnalyze(options) {
     console.error(`\n${formatIssuesReport(issues)}\n`);
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
-    const projectDir = findProjectRoot(options.dir) || options.dir;
-    const packageManager = detectPackageManager(projectDir);
-    printSuggestedInstallCommands(packageSpecs, packageManager);
+    if (showSuggestedCommands) {
+        const { packageManager } = resolveProjectContext(options.dir);
+        printSuggestedInstallCommands(packageSpecs, packageManager);
+    }
 
     return { exitCode: 1, issues, packageSpecs };
 }
@@ -36,7 +44,7 @@ function runInstallCommand(options) {
         return 1;
     }
 
-    const { issues, packageSpecs } = runAnalyze(options);
+    const { issues, packageSpecs } = runAnalyze({ ...options, showSuggestedCommands: false });
 
     if (issues.length === 0) {
         return 0;
@@ -49,14 +57,13 @@ function runInstallCommand(options) {
 
     printInstallReport(issues, packageSpecs);
 
-    const projectDir = findProjectRoot(options.dir) || options.dir;
-    const packageManager = detectPackageManager(projectDir);
+    const { projectDir, packageManager } = resolveProjectContext(options.dir);
     if (!packageManager) {
         console.error('\n✘ Could not determine a single package manager from lockfiles.');
         console.error(
             '  Add exactly one lockfile (bun.lockb/bun.lock, pnpm-lock.yaml, yarn.lock, package-lock.json or npm-shrinkwrap.json),',
         );
-        console.error('  or run one of the equivalent direct package-manager commands shown above.\n');
+        console.error('  then run this command again.\n');
         return 1;
     }
 

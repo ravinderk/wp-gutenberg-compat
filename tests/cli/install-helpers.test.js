@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import * as cli from '../../src/cli.js';
+import { compatData } from '../helpers/compat-data.js';
+import { writePluginHeader } from '../helpers/fixture-utils.js';
 
 describe('cli install helpers', () => {
     it('buildInstallCommand creates command strings for supported package managers', () => {
@@ -84,6 +86,47 @@ describe('cli install helpers', () => {
             expect(cli.detectPackageManager(tempDir)).toBeNull();
         } finally {
             fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it('runInstallCommand does not print analyze-only suggested next step output', () => {
+        const fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gb-cli-install-'));
+        const dataPath = path.join(fixtureDir, 'compat-data.json');
+        const pluginDir = path.join(fixtureDir, 'plugin');
+        const output = [];
+        const originalError = console.error;
+
+        try {
+            fs.writeFileSync(dataPath, JSON.stringify(compatData));
+            fs.mkdirSync(pluginDir, { recursive: true });
+
+            writePluginHeader(pluginDir, '6.5');
+            fs.writeFileSync(
+                path.join(pluginDir, 'package.json'),
+                JSON.stringify({ dependencies: { '@wordpress/components': '^28.0.0' } }),
+            );
+
+            const componentsDir = path.join(pluginDir, 'node_modules', '@wordpress', 'components');
+            fs.mkdirSync(componentsDir, { recursive: true });
+            fs.writeFileSync(
+                path.join(componentsDir, 'package.json'),
+                JSON.stringify({ name: '@wordpress/components', version: '28.0.0' }),
+            );
+
+            console.error = (line) => output.push(line);
+
+            const exitCode = cli.runInstallCommand({
+                dir: pluginDir,
+                dataPath,
+                unexpectedArgs: [],
+            });
+
+            expect(exitCode).toBe(1);
+            expect(output.join('\n')).not.toContain('Suggested next step:');
+            expect(output.join('\n')).not.toContain('Equivalent direct package-manager commands:');
+        } finally {
+            console.error = originalError;
+            fs.rmSync(fixtureDir, { recursive: true, force: true });
         }
     });
 });
