@@ -44,6 +44,8 @@ Better for CI pipelines and teams, since the version is pinned and there's no ne
 3. Run via npm:
 
     ```sh
+    npm run info
+    npm run info -- @wordpress/block-editor @wordpress/data
     npm run compat
     npm run compat:fix
     ```
