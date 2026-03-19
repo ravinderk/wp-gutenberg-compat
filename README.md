@@ -11,6 +11,13 @@ This tool checks whether the `@wordpress/*` APIs your project uses are available
 
 WordPress ships a bundled version of Gutenberg, and each Gutenberg release includes specific versions of `@wordpress/*` npm packages. A developer building a plugin that declares **"Requires at least: 6.5"** may unknowingly use an API that only ships with WordPress 6.8, which can break the plugin on older installations.
 
+## How to use
+
+1. Open a terminal in your WordPress plugin directory.
+2. Run `npx wp-gutenberg-compat analyze` to see the compatibility report.
+3. Review the recommendations.
+4. Run `npx wp-gutenberg-compat install` to automatically apply the compatible versions.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
