@@ -63,6 +63,7 @@ function runInstall(projectDir, packageManager, packageSpecs) {
     }
 
     console.error(`Installing recommended packages with: ${packageManager} ${args.join(' ')}`);
+    console.error('');
 
     const result = spawnSync(packageManager, args, {
         cwd: projectDir,

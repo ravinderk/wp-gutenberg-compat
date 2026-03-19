@@ -97,6 +97,8 @@ function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = nu
         const command = buildInstallCommand(pm, packageSpecs);
         console.error(`  ${command}`);
     }
+
+    console.error('');
 }
 
 module.exports = {

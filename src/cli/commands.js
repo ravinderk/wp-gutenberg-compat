@@ -17,7 +17,7 @@ function runAnalyze(options) {
     const issues = analyze(options);
 
     if (issues.length === 0) {
-        console.log('✔ All @wordpress/* packages are compatible with your minimum WordPress version.');
+        console.log('\n✔ All @wordpress/* packages are compatible with your minimum WordPress version.\n');
         return { exitCode: 0, issues, packageSpecs: [] };
     }
 
