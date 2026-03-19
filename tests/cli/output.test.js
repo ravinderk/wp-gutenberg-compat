@@ -43,7 +43,7 @@ describe('cli output formatting', () => {
             },
         ]);
 
-        expect(report).toContain('Compatibility issues:');
+        expect(report).toContain('Compatibility issues (2)');
         expect(report).toContain('Package');
         expect(report).toContain('@wordpress/views');
         expect(report).toContain('@wordpress/data');
