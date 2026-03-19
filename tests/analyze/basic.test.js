@@ -81,6 +81,7 @@ describe('analyze — basic', () => {
             installedVersion: '28.0.0',
             requiredWp: '6.8',
             minWp: '6.5',
+            recommendedVersion: '25.0.0',
         });
     });
 

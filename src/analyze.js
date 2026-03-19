@@ -119,6 +119,26 @@ function getRequiredWpVersion(compatData, pkgName, installedVersion) {
 }
 
 /**
+ * Find the highest package version that supports the project's min WP version.
+ */
+function getRecommendedVersionForWp(compatData, pkgName, minWp) {
+    const pkgEntry = compatData.packages[pkgName];
+    if (!pkgEntry) return null;
+
+    let bestVersion = null;
+
+    for (const [ver, info] of Object.entries(pkgEntry)) {
+        if (compareVersions(info.wordpress, minWp) <= 0) {
+            if (!bestVersion || compareVersions(ver, bestVersion) > 0) {
+                bestVersion = ver;
+            }
+        }
+    }
+
+    return bestVersion;
+}
+
+/**
  * Analyze @wordpress/* packages in a project for WordPress version compatibility.
  *
  * @param {object} [options]
@@ -128,7 +148,7 @@ function getRequiredWpVersion(compatData, pkgName, installedVersion) {
  *
  * Issue shapes:
  *   { type: 'missing-min-wp', projectType: 'plugin'|'theme'|null, pluginFile: string|null }
- *   { type: 'incompatible', pkgName, installedVersion, requiredWp, minWp }
+ *   { type: 'incompatible', pkgName, installedVersion, requiredWp, minWp, recommendedVersion }
  */
 function analyze({ dir = process.cwd(), dataPath = null } = {}) {
     const issues = [];
@@ -155,12 +175,14 @@ function analyze({ dir = process.cwd(), dataPath = null } = {}) {
         const requiredWp = getRequiredWpVersion(compatData, pkgName, installedVersion);
         if (!requiredWp) continue;
         if (compareVersions(requiredWp, minWp) > 0) {
+            const recommendedVersion = getRecommendedVersionForWp(compatData, pkgName, minWp);
             issues.push({
                 type: 'incompatible',
                 pkgName,
                 installedVersion: stripPreRelease(installedVersion),
                 requiredWp,
                 minWp,
+                recommendedVersion,
             });
         }
     }

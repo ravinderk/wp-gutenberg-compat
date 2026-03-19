@@ -12,15 +12,25 @@ WordPress ships a bundled version of Gutenberg, and each Gutenberg release inclu
 **wp-gutenberg-compat** catches this at check time by inspecting your installed packages — no ESLint required.
 
 ```
-✘ '@wordpress/components' version 28.0.0 requires WordPress 6.8,
+✘ '@wordpress/components' version 29.5.0 requires WordPress 6.8,
   but your plugin declares a minimum of WordPress 6.5.
   Either upgrade your minimum WP version or downgrade the package.
+  Recommended compatible version: @wordpress/components@26.0.0.
+
+Suggested next step:
+  wp-gutenberg-compat install
+
+Equivalent direct package-manager commands:
+  npm install @wordpress/components@26.0.0
+  yarn add @wordpress/components@26.0.0
+  pnpm add @wordpress/components@26.0.0
+  bun add @wordpress/components@26.0.0
 ```
 
 ## Packages
 
-| Package                               | Description                                      |
-| ------------------------------------- | ------------------------------------------------ |
+| Package               | Description                                      |
+| --------------------- | ------------------------------------------------ |
 | `wp-gutenberg-compat` | CLI tool to audit @wordpress/\* package versions |
 
 ## Requirements
@@ -48,12 +58,54 @@ npx wp-gutenberg-compat analyze
 ### Options
 
 ```
-Usage: wp-gutenberg-compat analyze [options]
+Usage: wp-gutenberg-compat <command> [options]
 
-Options:
-  --dir <path>  Directory to analyze (default: current working directory)
-  --help        Show this help message
+Commands:
+  analyze    Analyze compatibility and print recommendations
+  install    Install recommended compatible package versions
+
+Analyze options:
+  --dir <path>                     Directory to analyze (default: current working directory)
+  --help                           Show this help message
+
+Install options:
+  --all                            Install all recommended compatible package versions
+  --dir <path>                     Directory to analyze (default: current working directory)
+  <package-name> [...]             Install only the listed package(s), e.g. @wordpress/components
+  --help                           Show this help message
 ```
+
+### Optional Auto-Install
+
+By default, `analyze` only reports issues and suggestions (no side effects).
+
+To explicitly install recommended compatible versions for all incompatible packages:
+
+```bash
+npx wp-gutenberg-compat install --all
+```
+
+To install only specific packages:
+
+```bash
+npx wp-gutenberg-compat install @wordpress/components @wordpress/block-editor
+```
+
+`install` requires exactly one mode:
+
+- pass package names, or
+- pass `--all`
+
+After analyzing, the command prints an install report showing:
+
+- incompatible packages found,
+- selected install mode,
+- package specs selected for installation,
+- requested packages that had no recommended downgrade.
+
+The CLI auto-detects package manager from lockfiles (`bun.lockb`/`bun.lock`, `pnpm-lock.yaml`, `yarn.lock`, `package-lock.json`, `npm-shrinkwrap.json`).
+
+If no lockfile is found, or multiple package-manager lockfiles are present, `install` exits with an error and prints equivalent direct commands with exact recommended versions.
 
 ### Version Detection
 
