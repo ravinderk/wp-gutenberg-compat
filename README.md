@@ -1,26 +1,53 @@
 # @ravi.nder/wp-gutenberg-compat
 
-[![CI](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml/badge.svg)](https://github.com/ravinderk/wp-gutenberg-compat/actions/workflows/tests.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-> Verify that `@wordpress/*` (Gutenberg) packages in your project are compatible with your plugin's minimum supported WordPress version.
-
 ## What is this?
 
-This tool checks whether the `@wordpress/*` APIs your project uses are available in the Gutenberg version bundled with your minimum supported WordPress release.
+WordPress ships a bundled version of Gutenberg, and each Gutenberg release includes specific versions of `@wordpress/*` npm packages. A developer building a plugin that declares **"Requires at least: 6.5"** may unknowingly use an API that only ships with WordPress 6.8+, breaking the plugin on older installations.
 
-WordPress ships a bundled version of Gutenberg, and each Gutenberg release includes specific versions of `@wordpress/*` npm packages. A developer building a plugin that declares **"Requires at least: 6.5"** may unknowingly use an API that only ships with WordPress 6.8, which can break the plugin on older installations.
+This tool detects those mismatches by reading the minimum WordPress version from your plugin header or `style.css`, comparing your installed `@wordpress/*` package versions against the compatibility data, and recommending (or automatically installing) the correct downgraded versions.
 
 ## How to use
 
-1. Open a terminal in your WordPress plugin directory.
-2. Run `npx @ravi.nder/wp-gutenberg-compat analyze` to see the compatibility report.
-3. Review the recommendations.
-4. Run `npx @ravi.nder/wp-gutenberg-compat install` to automatically apply the compatible versions.
+### Option 1 — One-off with `npx` (no install required)
+
+Good for a quick, one-time check without adding a dependency to your project. Always pass `@latest` so `npx` doesn't use a stale cached version:
+
+```sh
+npx @ravi.nder/wp-gutenberg-compat@latest analyze
+npx @ravi.nder/wp-gutenberg-compat@latest install
+```
+
+### Option 2 — Install locally in your project (recommended for repeated use)
+
+Better for CI pipelines and teams, since the version is pinned and there's no network fetch on every run.
+
+1. Install as a dev dependency:
+
+    ```sh
+    npm install --save-dev @ravi.nder/wp-gutenberg-compat
+    ```
+
+2. Add scripts to your `package.json`:
+
+    ```json
+    {
+        "scripts": {
+            "compat": "wp-gutenberg-compat analyze",
+            "compat:fix": "wp-gutenberg-compat install"
+        }
+    }
+    ```
+
+3. Run via npm:
+
+    ```sh
+    npm run compat
+    npm run compat:fix
+    ```
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please open an issue or submit a pull request on [GitHub](https://github.com/ravinderk/wp-gutenberg-compat).
 
 ## License
 
