@@ -3,6 +3,68 @@
 const { buildInstallCommand } = require('./install-exec.js');
 const { buildAsciiTable } = require('./table.js');
 
+class Reporter {
+    constructor() {
+        this._entries = [];
+    }
+
+    error(msg) {
+        this._entries.push({ type: 'error', msg });
+        return this;
+    }
+
+    success(msg) {
+        this._entries.push({ type: 'success', msg });
+        return this;
+    }
+
+    warn(msg) {
+        this._entries.push({ type: 'warn', msg });
+        return this;
+    }
+
+    info(msg) {
+        this._entries.push({ type: 'info', msg });
+        return this;
+    }
+
+    block(msg) {
+        this._entries.push({ type: 'block', msg });
+        return this;
+    }
+
+    line(msg) {
+        this._entries.push({ type: 'line', msg });
+        return this;
+    }
+
+    print() {
+        for (const { type, msg } of this._entries) {
+            switch (type) {
+                case 'error':
+                    console.error(`\n✘ ${msg}\n`);
+                    break;
+                case 'success':
+                    console.log(`\n✔ ${msg}\n`);
+                    break;
+                case 'warn':
+                    console.error(`\n⚠ ${msg}\n`);
+                    break;
+                case 'info':
+                    console.error(`\n${msg}`);
+                    break;
+                case 'block':
+                    console.error(`\n${msg}\n`);
+                    break;
+                case 'line':
+                    console.error(msg);
+                    break;
+            }
+        }
+        return this;
+    }
+}
+
 function formatRecommendedRange(version) {
     return version ? `~${version}` : null;
 }
@@ -70,53 +132,58 @@ function formatNoAutomaticDowngradeMessage(issues) {
     return 'No automatic downgrades are available for the incompatible package(s).';
 }
 
-function printInstallReport(issues, packageSpecs) {
+function buildInstallReport(reporter, issues, packageSpecs) {
     const incompatibleCount = issues.filter((issue) => issue.type === 'incompatible').length;
 
-    console.error('\nInstall summary:');
-    console.error(`  Incompatible packages found: ${incompatibleCount}`);
-    console.error(`  Packages selected for install: ${packageSpecs.length}`);
+    const lines = ['Install summary:'];
+    lines.push(`  Incompatible packages found: ${incompatibleCount}`);
+    lines.push(`  Packages selected for install: ${packageSpecs.length}`);
 
     if (packageSpecs.length > 0) {
-        console.error('  Recommended package specs:');
+        lines.push('  Recommended package specs:');
         for (const spec of packageSpecs) {
-            console.error(`    - ${spec}`);
+            lines.push(`    - ${spec}`);
         }
     }
+
+    reporter.block(lines.join('\n'));
 }
 
-function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = null) {
+function buildSuggestedInstallCommands(reporter, packageSpecs, detectedPackageManager = null) {
     if (packageSpecs.length === 0) return;
 
-    console.error('\nSuggested next step:');
-    console.error('  wp-gutenberg-compat install');
-
-    console.error('\nEquivalent direct package-manager commands:');
     const packageManagers = detectedPackageManager ? [detectedPackageManager] : ['npm', 'yarn', 'pnpm', 'bun'];
-    for (const pm of packageManagers) {
-        const command = buildInstallCommand(pm, packageSpecs);
-        console.error(`  ${command}`);
-    }
+    const pmLines = packageManagers.map((pm) => `  ${buildInstallCommand(pm, packageSpecs)}`);
 
-    console.error('');
+    const lines = [
+        'Suggested next step:',
+        '  wp-gutenberg-compat install',
+        '',
+        'Equivalent direct package-manager commands:',
+        ...pmLines,
+    ];
+
+    reporter.block(lines.join('\n'));
 }
 
-function printRemoteSuggestedAction(packageSpecs) {
+function buildRemoteSuggestedAction(reporter, packageSpecs) {
     if (packageSpecs.length === 0) return;
 
-    console.error('\nSuggested action (remote project):');
-    console.error('  The following packages should be installed at a compatible version in that project:');
-    for (const spec of packageSpecs) {
-        console.error(`    - ${spec}`);
-    }
-    console.error('');
+    const lines = [
+        'Suggested action (remote project):',
+        '  The following packages should be downgraded in that project:',
+        ...packageSpecs.map((spec) => `    - ${spec}`),
+    ];
+
+    reporter.block(lines.join('\n'));
 }
 
 module.exports = {
+    Reporter,
     formatIssuesReport,
     formatNoAutomaticDowngradeMessage,
     formatIssue,
-    printInstallReport,
-    printSuggestedInstallCommands,
-    printRemoteSuggestedAction,
+    buildInstallReport,
+    buildSuggestedInstallCommands,
+    buildRemoteSuggestedAction,
 };

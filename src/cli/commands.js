@@ -4,13 +4,14 @@ const { analyze, analyzeRemote } = require('../analyze.js');
 const { collectRecommendedInstallSpecs } = require('./install-planning.js');
 const { runInstall } = require('./install-exec.js');
 const { resolveProjectContext } = require('./helpers/project-context.js');
-const { printMissingPackageManagerError, printUnexpectedInstallArgsError } = require('./helpers/install-validation.js');
+const { buildMissingPackageManagerError, buildUnexpectedInstallArgsError } = require('./helpers/install-validation.js');
 const {
+    Reporter,
     formatNoAutomaticDowngradeMessage,
     formatIssuesReport,
-    printInstallReport,
-    printSuggestedInstallCommands,
-    printRemoteSuggestedAction,
+    buildInstallReport,
+    buildSuggestedInstallCommands,
+    buildRemoteSuggestedAction,
 } = require('./output.js');
 const { buildAsciiTable } = require('./table.js');
 
@@ -90,7 +91,9 @@ function runInfo(options) {
 
 async function runAnalyze(options) {
     if (options.remote && !options.wp) {
-        console.error('\n✘ --remote requires --wp <version>\n');
+        const reporter = new Reporter();
+        reporter.error('--remote requires --wp <version>');
+        reporter.print();
         return { exitCode: 1, issues: [], packageSpecs: [] };
     }
 
@@ -101,7 +104,9 @@ async function runAnalyze(options) {
         try {
             issues = await analyzeRemote(options);
         } catch (err) {
-            console.error(`\n✘ ${err.message}\n`);
+            const reporter = new Reporter();
+            reporter.error(err.message);
+            reporter.print();
             return { exitCode: 1, issues: [], packageSpecs: [] };
         }
     } else {
@@ -109,28 +114,34 @@ async function runAnalyze(options) {
     }
 
     if (issues.length === 0) {
-        console.log('\n✔ All @wordpress/* packages are compatible with your minimum WordPress version.\n');
+        const reporter = new Reporter();
+        reporter.success('All @wordpress/* packages are compatible with your minimum WordPress version.');
+        reporter.print();
         return { exitCode: 0, issues, packageSpecs: [] };
     }
 
-    console.error(`\n${formatIssuesReport(issues)}\n`);
+    const reporter = new Reporter();
+    reporter.block(formatIssuesReport(issues));
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
     if (showSuggestedCommands) {
         if (options.remote) {
-            printRemoteSuggestedAction(packageSpecs);
+            buildRemoteSuggestedAction(reporter, packageSpecs);
         } else {
             const { packageManager } = resolveProjectContext(options.dir);
-            printSuggestedInstallCommands(packageSpecs, packageManager);
+            buildSuggestedInstallCommands(reporter, packageSpecs, packageManager);
         }
     }
 
+    reporter.print();
     return { exitCode: 1, issues, packageSpecs };
 }
 
 async function runInstallCommand(options) {
     if (options.unexpectedArgs.length > 0) {
-        printUnexpectedInstallArgsError(options.unexpectedArgs);
+        const reporter = new Reporter();
+        buildUnexpectedInstallArgsError(reporter, options.unexpectedArgs);
+        reporter.print();
         return 1;
     }
 
@@ -141,21 +152,29 @@ async function runInstallCommand(options) {
     }
 
     if (packageSpecs.length === 0) {
-        console.error(`\n${formatNoAutomaticDowngradeMessage(issues)}\n`);
+        const reporter = new Reporter();
+        reporter.error(formatNoAutomaticDowngradeMessage(issues));
+        reporter.print();
         return 1;
     }
 
-    printInstallReport(issues, packageSpecs);
+    const reporter = new Reporter();
+    buildInstallReport(reporter, issues, packageSpecs);
 
     const { projectDir, packageManager } = resolveProjectContext(options.dir);
     if (!packageManager) {
-        printMissingPackageManagerError();
+        buildMissingPackageManagerError(reporter);
+        reporter.print();
         return 1;
     }
 
+    reporter.print();
+
     const ok = runInstall(projectDir, packageManager, packageSpecs);
     if (!ok) {
-        console.error('\n✘ Installation failed.\n');
+        const failReporter = new Reporter();
+        failReporter.error('Installation failed.');
+        failReporter.print();
         return 1;
     }
 

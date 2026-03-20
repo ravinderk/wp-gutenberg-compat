@@ -5,7 +5,7 @@ const { parseArgs } = require('./cli/args.js');
 const { USAGE } = require('./cli/usage.js');
 const { buildInstallArgs, buildInstallCommand, detectPackageManager } = require('./cli/install-exec.js');
 const { collectRecommendedInstallSpecs } = require('./cli/install-planning.js');
-const { formatIssue, printInstallReport } = require('./cli/output.js');
+const { formatIssue, buildInstallReport } = require('./cli/output.js');
 const { runAnalyze, runInfo, runInstallCommand } = require('./cli/commands.js');
 
 function main() {
@@ -53,7 +53,7 @@ module.exports = {
     formatIssue,
     main,
     parseArgs,
-    printInstallReport,
+    buildInstallReport,
     runAnalyze,
     runInfo,
     runInstallCommand,
