@@ -134,7 +134,7 @@ describe('cli output formatting', () => {
 
     it('Reporter.print() is chainable and returns the reporter', () => {
         const reporter = new Reporter();
-        reporter.line('hello');
+        reporter.info('hello');
         const result = reporter.print();
         expect(result).toBe(reporter);
     });

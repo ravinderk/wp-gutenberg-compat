@@ -94,27 +94,24 @@ function buildSuggestedInstallCommands(reporter, packageSpecs, detectedPackageMa
     const packageManagers = detectedPackageManager ? [detectedPackageManager] : ['npm', 'yarn', 'pnpm', 'bun'];
     const pmLines = packageManagers.map((pm) => `  ${buildInstallCommand(pm, packageSpecs)}`);
 
-    const lines = [
+    reporter.block(
+        '\n',
         'Suggested next step:',
         '  wp-gutenberg-compat install',
         '',
         'Equivalent direct package-manager commands:',
         ...pmLines,
-    ];
-
-    reporter.block(lines.join('\n'));
+    );
 }
 
 function buildRemoteSuggestedAction(reporter, packageSpecs) {
     if (packageSpecs.length === 0) return;
 
-    const lines = [
+    reporter.block(
         'Suggested action (remote project):',
         '  The following packages should be installed at a compatible version in that project:',
         ...packageSpecs.map((spec) => `    - ${spec}`),
-    ];
-
-    reporter.block(lines.join('\n'));
+    );
 }
 
 module.exports = {

@@ -25,13 +25,8 @@ class Reporter {
         return this;
     }
 
-    block(msg) {
-        this._entries.push({ type: 'block', msg });
-        return this;
-    }
-
-    line(msg) {
-        this._entries.push({ type: 'line', msg });
+    block(...args) {
+        this._entries.push({ type: 'info', msg: args.join('\n') });
         return this;
     }
 
@@ -54,12 +49,6 @@ class Reporter {
                     console.error(`⚠ ${msg}`);
                     break;
                 case 'info':
-                    console.error(msg);
-                    break;
-                case 'block':
-                    console.error(`\n${msg}\n`);
-                    break;
-                case 'line':
                     console.error(msg);
                     break;
                 case 'log':
