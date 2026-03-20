@@ -2,9 +2,11 @@
 
 ## What is this?
 
-WordPress ships a bundled version of Gutenberg, and each Gutenberg release includes specific versions of `@wordpress/*` npm packages. A developer building a plugin that declares **"Requires at least: 6.5"** may unknowingly use an API that only ships with WordPress 6.8+, breaking the plugin on older installations.
+WordPress ships a bundled version of Gutenberg, and each Gutenberg release includes specific versions of `@wordpress/*` npm packages. Most developers test their blocks and plugins against the latest WordPress install — and `npm install` pulls in the **latest** `@wordpress/*` packages to match. Everything looks fine locally, but if you declare **"Requires at least: 6.5"** in your plugin header while coding against packages from WordPress 6.8, your plugin silently breaks on any site still running an older version.
 
-This tool detects those mismatches by reading the minimum WordPress version from your plugin header or `style.css`, comparing your installed `@wordpress/*` package versions against the compatibility data, and recommending (or automatically installing) the correct downgraded versions.
+A concrete example: you declare `Requires at least: 6.5`, but you're coding against `@wordpress/block-editor@14.x` (which ships with WordPress 6.8). Your editor happily autocompletes APIs that simply don't exist on 6.5 sites — and you won't find out until a real user reports a white screen.
+
+This tool detects those mismatches by reading the minimum WordPress version from your plugin header or `style.css`, comparing your installed `@wordpress/*` package versions against the compatibility data, and recommending (or automatically installing) the correct downgraded versions. Once you install the suggested versions, your editor's IntelliSense will only surface APIs that actually exist in those versions — so the accidental bug never gets written in the first place. Think of it as a compile-time guardrail that enforces your minimum WP requirement right inside your IDE.
 
 ## How to use
 
