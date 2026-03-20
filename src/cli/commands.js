@@ -54,26 +54,24 @@ function runInfo(options) {
         lines.push('');
         lines.push(`Compat data last updated: ${generated} (Gutenberg ${lastGutenbergTag})`);
 
-        console.log('');
-        console.log(lines.join('\n'));
-        console.log('');
+        new Reporter().log(lines.join('\n')).print();
         return 0;
     }
 
     // Mode 2: with package name(s) — display the full compatibility matrix for each package
+    const reporter = new Reporter();
     let exitCode = 0;
 
-    console.log('');
     for (const pkgName of options.infoPackages) {
         if (!pkgName.startsWith('@wordpress/')) {
-            console.error(`\n✘ '${pkgName}' is not tracked in compat data.`);
+            reporter.error(`'${pkgName}' is not tracked in compat data.`);
             exitCode = 1;
             continue;
         }
 
         const pkgEntry = compatData.packages[pkgName];
         if (!pkgEntry) {
-            console.error(`\n✘ '${pkgName}' is not tracked in compat data.`);
+            reporter.error(`'${pkgName}' is not tracked in compat data.`);
             exitCode = 1;
             continue;
         }
@@ -81,11 +79,10 @@ function runInfo(options) {
         const rows = Object.entries(pkgEntry).map(([version, info]) => [version, info.wordpress, info.gutenberg]);
         const table = buildAsciiTable(['Version', 'WordPress', 'Gutenberg'], rows);
 
-        console.log(`\n${pkgName}\n`);
-        console.log(table.replace(/^/gm, '  '));
+        reporter.log(`\n${pkgName}\n\n${table.replace(/^/gm, '  ')}`);
     }
-    console.log('');
 
+    reporter.print();
     return exitCode;
 }
 
