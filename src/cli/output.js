@@ -2,7 +2,7 @@
 
 const { buildInstallCommand } = require('./install-exec.js');
 const { buildAsciiTable } = require('./table.js');
-const { Reporter } = require('./reporter.js');
+const { Reporter } = require('../services/reporter.js');
 
 function formatRecommendedRange(version) {
     return version ? `~${version}` : null;

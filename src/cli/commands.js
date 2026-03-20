@@ -1,12 +1,12 @@
 'use strict';
 
+const { app } = require('../app.js');
 const { analyze, analyzeRemote } = require('../analyze.js');
 const { collectRecommendedInstallSpecs } = require('./install-planning.js');
 const { runInstall } = require('./install-exec.js');
 const { resolveProjectContext } = require('./helpers/project-context.js');
 const { buildMissingPackageManagerError, buildUnexpectedInstallArgsError } = require('./helpers/install-validation.js');
 const {
-    Reporter,
     formatNoAutomaticDowngradeMessage,
     formatIssuesReport,
     buildInstallReport,
@@ -54,12 +54,12 @@ function runInfo(options) {
         lines.push('');
         lines.push(`Compat data last updated: ${generated} (Gutenberg ${lastGutenbergTag})`);
 
-        new Reporter().log(lines.join('\n')).print();
+        app.make('Reporter').log(lines.join('\n')).print();
         return 0;
     }
 
     // Mode 2: with package name(s) — display the full compatibility matrix for each package
-    const reporter = new Reporter();
+    const reporter = app.make('Reporter');
     let exitCode = 0;
 
     for (const pkgName of options.infoPackages) {
@@ -88,7 +88,7 @@ function runInfo(options) {
 
 async function runAnalyze(options) {
     if (options.remote && !options.wp) {
-        const reporter = new Reporter();
+        const reporter = app.make('Reporter');
         reporter.error('--remote requires --wp <version>');
         reporter.print();
         return { exitCode: 1, issues: [], packageSpecs: [] };
@@ -101,7 +101,7 @@ async function runAnalyze(options) {
         try {
             issues = await analyzeRemote(options);
         } catch (err) {
-            const reporter = new Reporter();
+            const reporter = app.make('Reporter');
             reporter.error(err.message);
             reporter.print();
             return { exitCode: 1, issues: [], packageSpecs: [] };
@@ -111,13 +111,13 @@ async function runAnalyze(options) {
     }
 
     if (issues.length === 0) {
-        const reporter = new Reporter();
+        const reporter = app.make('Reporter');
         reporter.success('All @wordpress/* packages are compatible with your minimum WordPress version.');
         reporter.print();
         return { exitCode: 0, issues, packageSpecs: [] };
     }
 
-    const reporter = new Reporter();
+    const reporter = app.make('Reporter');
     reporter.block(formatIssuesReport(issues));
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
@@ -136,7 +136,7 @@ async function runAnalyze(options) {
 
 async function runInstallCommand(options) {
     if (options.unexpectedArgs.length > 0) {
-        const reporter = new Reporter();
+        const reporter = app.make('Reporter');
         buildUnexpectedInstallArgsError(reporter, options.unexpectedArgs);
         reporter.print();
         return 1;
@@ -149,13 +149,13 @@ async function runInstallCommand(options) {
     }
 
     if (packageSpecs.length === 0) {
-        const reporter = new Reporter();
+        const reporter = app.make('Reporter');
         reporter.error(formatNoAutomaticDowngradeMessage(issues));
         reporter.print();
         return 1;
     }
 
-    const reporter = new Reporter();
+    const reporter = app.make('Reporter');
     buildInstallReport(reporter, issues, packageSpecs);
 
     const { projectDir, packageManager } = resolveProjectContext(options.dir);
@@ -169,7 +169,7 @@ async function runInstallCommand(options) {
 
     const ok = runInstall(projectDir, packageManager, packageSpecs);
     if (!ok) {
-        const failReporter = new Reporter();
+        const failReporter = app.make('Reporter');
         failReporter.error('Installation failed.');
         failReporter.print();
         return 1;

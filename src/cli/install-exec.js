@@ -3,7 +3,7 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const { spawnSync } = require('node:child_process');
-const { Reporter } = require('./reporter.js');
+const { app } = require('../app.js');
 
 function detectPackageManager(projectDir) {
     const lockfilesByManager = {
@@ -59,13 +59,13 @@ function buildInstallCommand(packageManager, packageSpecs, options = {}) {
 function runInstall(projectDir, packageManager, packageSpecs) {
     const args = buildInstallArgs(packageManager, packageSpecs);
     if (!args) {
-        const reporter = new Reporter();
+        const reporter = app.make('Reporter');
         reporter.error(`Unsupported package manager: ${packageManager}`);
         reporter.print();
         return false;
     }
 
-    const reporter = new Reporter();
+    const reporter = app.make('Reporter');
     reporter.info(`Installing recommended packages with: ${packageManager} ${args.join(' ')}`);
     reporter.print();
 
