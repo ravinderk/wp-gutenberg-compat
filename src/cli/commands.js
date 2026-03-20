@@ -79,7 +79,7 @@ function runInfo(options) {
         const rows = Object.entries(pkgEntry).map(([version, info]) => [version, info.wordpress, info.gutenberg]);
         const table = buildAsciiTable(['Version', 'WordPress', 'Gutenberg'], rows);
 
-        reporter.log(`\n${pkgName}\n\n${table.replace(/^/gm, '  ')}`);
+        reporter.log(`${pkgName}\n\n${table.replace(/^/gm, '  ')}`);
     }
 
     reporter.print();

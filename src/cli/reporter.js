@@ -41,22 +41,23 @@ class Reporter {
     }
 
     print() {
+        console.log('');
         for (const { type, msg } of this._entries) {
             switch (type) {
                 case 'error':
-                    console.error(`\n✘ ${msg}\n`);
+                    console.error(`✘ ${msg}`);
                     break;
                 case 'success':
-                    console.log(`\n✔ ${msg}\n`);
+                    console.log(`✔ ${msg}`);
                     break;
                 case 'warn':
-                    console.error(`\n⚠ ${msg}\n`);
+                    console.error(`⚠ ${msg}`);
                     break;
                 case 'info':
-                    console.error(`\n${msg}`);
+                    console.error(msg);
                     break;
                 case 'block':
-                    console.error(`\n${msg}\n`);
+                    console.error(msg);
                     break;
                 case 'line':
                     console.error(msg);
@@ -66,6 +67,7 @@ class Reporter {
                     break;
             }
         }
+        console.log('');
         return this;
     }
 }
