@@ -82,4 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint flat config for code linting.
 - npm keywords added to `package.json` for discoverability.
 
+[0.3.0]: https://github.com/ravinderk/wp-gutenberg-compat/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/ravinderk/wp-gutenberg-compat/compare/0.1.1...0.2.0
