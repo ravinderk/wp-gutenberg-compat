@@ -162,7 +162,7 @@ describe('cli install helpers', () => {
             expect(output.join('\n')).not.toContain('Suggested next step:');
             expect(output.join('\n')).not.toContain('Equivalent direct package-manager commands:');
             expect(output.join('\n')).toContain('Suggested action (remote project):');
-            expect(output.join('\n')).toContain('should be downgraded in that project');
+            expect(output.join('\n')).toContain('should be installed at a compatible version in that project');
             expect(output.join('\n')).toContain('@wordpress/components@~');
         } finally {
             console.error = originalError;
