@@ -110,7 +110,7 @@ function buildRemoteSuggestedAction(reporter, packageSpecs) {
 
     const lines = [
         'Suggested action (remote project):',
-        '  The following packages should be downgraded in that project:',
+        '  The following packages should be installed at a compatible version in that project:',
         ...packageSpecs.map((spec) => `    - ${spec}`),
     ];
 
