@@ -56,3 +56,4 @@ The release version is: **${input:version:Release version number (e.g. 0.4.0)}**
 - The tag must point to `master`.
 - Follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) — the version must be in `MAJOR.MINOR.PATCH` format.
 - Do not modify any source files as part of this workflow.
+- **The user must be on the `master` branch.** Before proceeding, run `git branch --show-current` and verify the output is `master`. If it is not, stop and inform the user: "You must switch to the `master` branch before creating a draft release. Run `git checkout master` and try again."
