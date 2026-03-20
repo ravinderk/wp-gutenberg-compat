@@ -2,7 +2,7 @@
 
 const { app } = require('../../app.js');
 const { buildAsciiTable } = require('../table.js');
-const { loadCompatData } = require('./utils.js');
+const { loadCompatData } = require('../../utils/compat-data.js');
 
 function runInfo(options) {
     const compatData = loadCompatData(options.dataPath);
