@@ -4,6 +4,15 @@ on:
     schedule:
         - cron: '0 6 * * *' # Daily at 06:00 UTC
     workflow_dispatch:
+        inputs:
+            dry_run:
+                description: 'Dry run — scrape data and report changes without creating a branch or PR'
+                required: false
+                default: 'false'
+                type: choice
+                options:
+                    - 'false'
+                    - 'true'
 
 permissions:
     contents: write
@@ -42,8 +51,35 @@ jobs:
                   TAG=$(node -e "const d=require('./src/data/compat-data.json'); console.log(d.lastGutenbergTag)")
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+            - name: Dry run report
+              if: steps.diff.outputs.changed == 'true' && inputs.dry_run == 'true'
+              run: |
+                  TAG="${{ steps.tag.outputs.tag }}"
+                  echo "## Dry Run Report" >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "**Mode:** Dry Run — no branch or PR was created." >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "### What would happen" >> "$GITHUB_STEP_SUMMARY"
+                  echo "- A new branch \`chore/update-compat-data-${TAG}\` would be created." >> "$GITHUB_STEP_SUMMARY"
+                  echo "- \`src/data/compat-data.json\` would be committed with the updated compat data for Gutenberg **${TAG}**." >> "$GITHUB_STEP_SUMMARY"
+                  echo "- A pull request would be opened targeting \`master\` and assigned to **ravinderk** for review." >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "### Diff preview" >> "$GITHUB_STEP_SUMMARY"
+                  echo '```diff' >> "$GITHUB_STEP_SUMMARY"
+                  git diff src/data/compat-data.json >> "$GITHUB_STEP_SUMMARY"
+                  echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+            - name: No changes report
+              if: steps.diff.outputs.changed == 'false' && inputs.dry_run == 'true'
+              run: |
+                  echo "## Dry Run Report" >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "**Mode:** Dry Run — no changes detected." >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "\`src/data/compat-data.json\` is already up to date. No branch or PR would be created." >> "$GITHUB_STEP_SUMMARY"
+
             - name: Create branch and commit updated compat data
-              if: steps.diff.outputs.changed == 'true'
+              if: steps.diff.outputs.changed == 'true' && inputs.dry_run != 'true'
               id: commit
               run: |
                   git config user.name "github-actions[bot]"
@@ -56,7 +92,7 @@ jobs:
                   echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
             - name: Open pull request
-              if: steps.diff.outputs.changed == 'true'
+              if: steps.diff.outputs.changed == 'true' && inputs.dry_run != 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
