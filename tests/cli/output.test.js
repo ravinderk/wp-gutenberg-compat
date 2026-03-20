@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest';
 
 import { buildAsciiTable } from '../../src/cli/table.js';
 import {
+    Reporter,
     formatIssuesReport,
     formatNoAutomaticDowngradeMessage,
-    printSuggestedInstallCommands,
+    buildSuggestedInstallCommands,
 } from '../../src/cli/output.js';
 
 describe('cli output formatting', () => {
@@ -62,40 +63,79 @@ describe('cli output formatting', () => {
         expect(message).toBe('No automatic downgrade is available for @wordpress/views.');
     });
 
-    it('printSuggestedInstallCommands shows only the detected package manager command', () => {
+    it('buildSuggestedInstallCommands shows only the detected package manager command', () => {
+        const reporter = new Reporter();
+        buildSuggestedInstallCommands(reporter, ['@wordpress/components@11.0.0'], 'pnpm');
+
         const output = [];
         const originalError = console.error;
         console.error = (line) => output.push(line);
 
         try {
-            printSuggestedInstallCommands(['@wordpress/components@11.0.0'], 'pnpm');
+            reporter.print();
         } finally {
             console.error = originalError;
         }
 
-        expect(output).toContain('  wp-gutenberg-compat install');
-        expect(output).not.toContain('  wp-gutenberg-compat install --all');
-        expect(output).toContain('\nEquivalent direct package-manager commands:');
-        expect(output).toContain('  pnpm add @wordpress/components@11.0.0');
-        expect(output).not.toContain('  npm install @wordpress/components@11.0.0');
-        expect(output).not.toContain('  yarn add @wordpress/components@11.0.0');
-        expect(output).not.toContain('  bun add @wordpress/components@11.0.0');
+        const text = output.join('\n');
+        expect(text).toContain('wp-gutenberg-compat install');
+        expect(text).toContain('Equivalent direct package-manager commands:');
+        expect(text).toContain('pnpm add @wordpress/components@11.0.0');
+        expect(text).not.toContain('npm install @wordpress/components@11.0.0');
+        expect(text).not.toContain('yarn add @wordpress/components@11.0.0');
+        expect(text).not.toContain('bun add @wordpress/components@11.0.0');
     });
 
-    it('printSuggestedInstallCommands falls back to all supported package-manager commands', () => {
+    it('buildSuggestedInstallCommands falls back to all supported package-manager commands', () => {
+        const reporter = new Reporter();
+        buildSuggestedInstallCommands(reporter, ['@wordpress/components@11.0.0']);
+
         const output = [];
         const originalError = console.error;
         console.error = (line) => output.push(line);
 
         try {
-            printSuggestedInstallCommands(['@wordpress/components@11.0.0']);
+            reporter.print();
         } finally {
             console.error = originalError;
         }
 
-        expect(output).toContain('  npm install @wordpress/components@11.0.0');
-        expect(output).toContain('  yarn add @wordpress/components@11.0.0');
-        expect(output).toContain('  pnpm add @wordpress/components@11.0.0');
-        expect(output).toContain('  bun add @wordpress/components@11.0.0');
+        const text = output.join('\n');
+        expect(text).toContain('npm install @wordpress/components@11.0.0');
+        expect(text).toContain('yarn add @wordpress/components@11.0.0');
+        expect(text).toContain('pnpm add @wordpress/components@11.0.0');
+        expect(text).toContain('bun add @wordpress/components@11.0.0');
+    });
+
+    it('Reporter buffers entries and flushes them via print()', () => {
+        const reporter = new Reporter();
+        reporter.error('something went wrong');
+        reporter.success('all good');
+        reporter.block('some details');
+
+        const errOutput = [];
+        const logOutput = [];
+        const originalError = console.error;
+        const originalLog = console.log;
+        console.error = (line) => errOutput.push(line);
+        console.log = (line) => logOutput.push(line);
+
+        try {
+            reporter.print();
+        } finally {
+            console.error = originalError;
+            console.log = originalLog;
+        }
+
+        expect(errOutput.join('\n')).toContain('✘ something went wrong');
+        expect(logOutput.join('\n')).toContain('✔ all good');
+        expect(errOutput.join('\n')).toContain('some details');
+    });
+
+    it('Reporter.print() is chainable and returns the reporter', () => {
+        const reporter = new Reporter();
+        reporter.info('hello');
+        const result = reporter.print();
+        expect(result).toBe(reporter);
     });
 });

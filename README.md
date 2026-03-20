@@ -50,6 +50,22 @@ Better for CI pipelines and teams, since the version is pinned and there's no ne
     npm run compat:fix
     ```
 
+### Option 3 — Remote analysis (no clone needed)
+
+Good for auditing a third-party plugin or any project you don't have checked out locally. Pass the raw URL of the target `package.json` together with the minimum WordPress version you want to check against:
+
+```sh
+npx @ravi.nder/wp-gutenberg-compat@latest analyze \
+  --remote https://raw.githubusercontent.com/user/my-plugin/main/package.json \
+  --wp 6.5
+```
+
+- No local clone, no `node_modules`, no lock file required.
+- `--wp` is mandatory in remote mode (the tool cannot auto-detect the WordPress version from a remote source).
+- The output lists any incompatible `@wordpress/*` packages and suggests the downgraded versions you should install in your own copy of the project.
+- **The URL must be publicly accessible.** URLs behind authentication, private repositories, or VPNs will not work.
+- **The URL must serve the raw file content (plain text/JSON), not an HTML page.** GitHub repository browser URLs (`github.com/.../blob/...`) return HTML and will not work — use the raw URL instead (`raw.githubusercontent.com/...`).
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request on [GitHub](https://github.com/ravinderk/wp-gutenberg-compat).

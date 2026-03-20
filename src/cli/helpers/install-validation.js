@@ -1,19 +1,21 @@
 'use strict';
 
-function printUnexpectedInstallArgsError(unexpectedArgs) {
-    console.error(`✘ The install command does not accept extra arguments: ${unexpectedArgs.join(', ')}`);
-    console.error('  Usage: wp-gutenberg-compat install [--dir <path>]');
+function buildUnexpectedInstallArgsError(reporter, unexpectedArgs) {
+    reporter.error(`The install command does not accept extra arguments: ${unexpectedArgs.join(', ')}`);
+    reporter.info('  Usage: wp-gutenberg-compat install [--dir <path>]');
 }
 
-function printMissingPackageManagerError() {
-    console.error('\n✘ Could not determine a single package manager from lockfiles.');
-    console.error(
-        '  Add exactly one lockfile (bun.lockb/bun.lock, pnpm-lock.yaml, yarn.lock, package-lock.json or npm-shrinkwrap.json),',
+function buildMissingPackageManagerError(reporter) {
+    reporter.error('Could not determine a single package manager from lockfiles.');
+    reporter.info(
+        [
+            '  Add exactly one lockfile (bun.lockb/bun.lock, pnpm-lock.yaml, yarn.lock, package-lock.json or npm-shrinkwrap.json),',
+            '  then run this command again.',
+        ].join('\n'),
     );
-    console.error('  then run this command again.\n');
 }
 
 module.exports = {
-    printMissingPackageManagerError,
-    printUnexpectedInstallArgsError,
+    buildMissingPackageManagerError,
+    buildUnexpectedInstallArgsError,
 };

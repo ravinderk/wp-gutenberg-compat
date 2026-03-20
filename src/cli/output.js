@@ -2,6 +2,7 @@
 
 const { buildInstallCommand } = require('./install-exec.js');
 const { buildAsciiTable } = require('./table.js');
+const { Reporter } = require('../services/reporter.js');
 
 function formatRecommendedRange(version) {
     return version ? `~${version}` : null;
@@ -70,41 +71,55 @@ function formatNoAutomaticDowngradeMessage(issues) {
     return 'No automatic downgrades are available for the incompatible package(s).';
 }
 
-function printInstallReport(issues, packageSpecs) {
+function buildInstallReport(reporter, issues, packageSpecs) {
     const incompatibleCount = issues.filter((issue) => issue.type === 'incompatible').length;
 
-    console.error('\nInstall summary:');
-    console.error(`  Incompatible packages found: ${incompatibleCount}`);
-    console.error(`  Packages selected for install: ${packageSpecs.length}`);
+    const lines = ['Install summary:'];
+    lines.push(`  Incompatible packages found: ${incompatibleCount}`);
+    lines.push(`  Packages selected for install: ${packageSpecs.length}`);
 
     if (packageSpecs.length > 0) {
-        console.error('  Recommended package specs:');
+        lines.push('  Recommended package specs:');
         for (const spec of packageSpecs) {
-            console.error(`    - ${spec}`);
+            lines.push(`    - ${spec}`);
         }
     }
+
+    reporter.block(lines.join('\n'));
 }
 
-function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = null) {
+function buildSuggestedInstallCommands(reporter, packageSpecs, detectedPackageManager = null) {
     if (packageSpecs.length === 0) return;
 
-    console.error('\nSuggested next step:');
-    console.error('  wp-gutenberg-compat install');
-
-    console.error('\nEquivalent direct package-manager commands:');
     const packageManagers = detectedPackageManager ? [detectedPackageManager] : ['npm', 'yarn', 'pnpm', 'bun'];
-    for (const pm of packageManagers) {
-        const command = buildInstallCommand(pm, packageSpecs);
-        console.error(`  ${command}`);
-    }
+    const pmLines = packageManagers.map((pm) => `  ${buildInstallCommand(pm, packageSpecs)}`);
 
-    console.error('');
+    reporter.block(
+        '\n',
+        'Suggested next step:',
+        '  wp-gutenberg-compat install',
+        '',
+        'Equivalent direct package-manager commands:',
+        ...pmLines,
+    );
+}
+
+function buildRemoteSuggestedAction(reporter, packageSpecs) {
+    if (packageSpecs.length === 0) return;
+
+    reporter.block(
+        'Suggested action (remote project):',
+        '  The following packages should be installed at a compatible version in that project:',
+        ...packageSpecs.map((spec) => `    - ${spec}`),
+    );
 }
 
 module.exports = {
+    Reporter,
     formatIssuesReport,
     formatNoAutomaticDowngradeMessage,
     formatIssue,
-    printInstallReport,
-    printSuggestedInstallCommands,
+    buildInstallReport,
+    buildSuggestedInstallCommands,
+    buildRemoteSuggestedAction,
 };

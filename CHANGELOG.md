@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-20
+
+### Added
+
+- `--remote` and `--wp` flags to `analyze` command for analysing remote plugins via URL without a local install.
+- Buffered `Reporter` class to centralise all CLI terminal output.
+- README documentation for remote analysis option and URL requirements.
+
+### Changed
+
+- Split `commands.js` into focused per-command modules (`analyze.js`, `info.js`, `install.js`).
+- Split helper utilities into focused modules under `helpers/`.
+- Introduced app container (`app.js`) and moved `Reporter` to `services/` layer.
+- `install-exec` now uses `Reporter` instead of bare `console` calls.
+- Centralised blank-line padding logic inside `Reporter.print()`.
+
+---
+
 ## [0.2.0] - 2026-03-19
 
 ### Added
@@ -64,4 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint flat config for code linting.
 - npm keywords added to `package.json` for discoverability.
 
+[0.3.0]: https://github.com/ravinderk/wp-gutenberg-compat/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/ravinderk/wp-gutenberg-compat/compare/0.1.1...0.2.0

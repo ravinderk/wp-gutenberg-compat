@@ -3,6 +3,7 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const { spawnSync } = require('node:child_process');
+const { app } = require('../app.js');
 
 function detectPackageManager(projectDir) {
     const lockfilesByManager = {
@@ -58,12 +59,15 @@ function buildInstallCommand(packageManager, packageSpecs, options = {}) {
 function runInstall(projectDir, packageManager, packageSpecs) {
     const args = buildInstallArgs(packageManager, packageSpecs);
     if (!args) {
-        console.error(`✘ Unsupported package manager: ${packageManager}`);
+        const reporter = app.make('Reporter');
+        reporter.error(`Unsupported package manager: ${packageManager}`);
+        reporter.print();
         return false;
     }
 
-    console.error(`Installing recommended packages with: ${packageManager} ${args.join(' ')}`);
-    console.error('');
+    const reporter = app.make('Reporter');
+    reporter.info(`Installing recommended packages with: ${packageManager} ${args.join(' ')}`);
+    reporter.print();
 
     const result = spawnSync(packageManager, args, {
         cwd: projectDir,

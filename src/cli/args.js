@@ -8,6 +8,8 @@ function parseArgs(argv) {
         dir: process.cwd(),
         unexpectedArgs: [],
         infoPackages: [],
+        remote: null,
+        wp: null,
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -25,6 +27,16 @@ function parseArgs(argv) {
 
         if ((args[i] === '--dir' || args[i] === '-d') && args[i + 1]) {
             options.dir = path.resolve(args[++i]);
+            continue;
+        }
+
+        if (args[i] === '--remote' && args[i + 1]) {
+            options.remote = args[++i];
+            continue;
+        }
+
+        if (args[i] === '--wp' && args[i + 1]) {
+            options.wp = args[++i];
             continue;
         }
 
