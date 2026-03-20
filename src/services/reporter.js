@@ -57,7 +57,7 @@ class Reporter {
                     console.error(msg);
                     break;
                 case 'block':
-                    console.error(msg);
+                    console.error(`\n${msg}\n`);
                     break;
                 case 'line':
                     console.error(msg);
