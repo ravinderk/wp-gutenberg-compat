@@ -10,6 +10,10 @@ Create a release pull request for this project from `develop` to `master`.
 
 The target version is: **${input:version:New version number (e.g. 0.4.0)}**
 
+> **IMPORTANT:** If the version above is empty or was not provided, stop immediately and ask the user:
+> "What version should this release be? (e.g. 0.4.0)"
+> Do not proceed with any steps until a valid semver version is confirmed.
+
 ## Steps to perform
 
 1. **Bump the version** in `package.json` to `${input:version}`.
