@@ -89,7 +89,7 @@ describe('cli install helpers', () => {
         }
     });
 
-    it('runInstallCommand does not print analyze-only suggested next step output', () => {
+    it('runInstallCommand does not print analyze-only suggested next step output', async () => {
         const fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gb-cli-install-'));
         const dataPath = path.join(fixtureDir, 'compat-data.json');
         const pluginDir = path.join(fixtureDir, 'plugin');
@@ -115,7 +115,7 @@ describe('cli install helpers', () => {
 
             console.error = (line) => output.push(line);
 
-            const exitCode = cli.runInstallCommand({
+            const exitCode = await cli.runInstallCommand({
                 dir: pluginDir,
                 dataPath,
                 unexpectedArgs: [],

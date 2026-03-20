@@ -1,6 +1,6 @@
 'use strict';
 
-const { analyze } = require('../analyze.js');
+const { analyze, analyzeRemote } = require('../analyze.js');
 const { collectRecommendedInstallSpecs } = require('./install-planning.js');
 const { runInstall } = require('./install-exec.js');
 const { resolveProjectContext } = require('./helpers/project-context.js');
@@ -87,9 +87,25 @@ function runInfo(options) {
     return exitCode;
 }
 
-function runAnalyze(options) {
+async function runAnalyze(options) {
+    if (options.remote && !options.wp) {
+        console.error('\n✘ --remote requires --wp <version>\n');
+        return { exitCode: 1, issues: [], packageSpecs: [] };
+    }
+
     const showSuggestedCommands = options.showSuggestedCommands !== false;
-    const issues = analyze(options);
+
+    let issues;
+    if (options.remote) {
+        try {
+            issues = await analyzeRemote(options);
+        } catch (err) {
+            console.error(`\n✘ ${err.message}\n`);
+            return { exitCode: 1, issues: [], packageSpecs: [] };
+        }
+    } else {
+        issues = analyze(options);
+    }
 
     if (issues.length === 0) {
         console.log('\n✔ All @wordpress/* packages are compatible with your minimum WordPress version.\n');
@@ -107,13 +123,13 @@ function runAnalyze(options) {
     return { exitCode: 1, issues, packageSpecs };
 }
 
-function runInstallCommand(options) {
+async function runInstallCommand(options) {
     if (options.unexpectedArgs.length > 0) {
         printUnexpectedInstallArgsError(options.unexpectedArgs);
         return 1;
     }
 
-    const { issues, packageSpecs } = runAnalyze({ ...options, showSuggestedCommands: false });
+    const { issues, packageSpecs } = await runAnalyze({ ...options, showSuggestedCommands: false });
 
     if (issues.length === 0) {
         return 0;

@@ -30,14 +30,15 @@ function main() {
     const options = parseArgs(process.argv);
 
     if (command === 'analyze') {
-        process.exit(runAnalyze(options).exitCode);
+        Promise.resolve(runAnalyze(options)).then(({ exitCode }) => process.exit(exitCode));
+        return;
     }
 
     if (command === 'info') {
         process.exit(runInfo(options));
     }
 
-    process.exit(runInstallCommand(options));
+    Promise.resolve(runInstallCommand(options)).then((exitCode) => process.exit(exitCode));
 }
 
 if (require.main === module) {
