@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-    --font-display: "Instrument Serif", Georgia, serif;
-    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", monospace;
 
-    --color-bg: #07090f;
-    --color-surface: #0d1117;
-    --color-border: #1e2d3d;
-    --color-border-subtle: #131d27;
+    --color-bg: #ffffff;
+    --color-surface: #f8f8f6;
+    --color-surface-dark: #1b1b18;
+    --color-border: #e3e3e0;
+    --color-border-subtle: #f0f0ee;
 
-    --color-accent: #3b82f6;
-    --color-accent-muted: #1d4ed8;
-    --color-accent-glow: #3b82f620;
+    --color-accent: #f53003;
+    --color-accent-muted: #d42a02;
+    --color-accent-glow: #f5300310;
 
-    --color-green: #10b981;
-    --color-red: #f87171;
-    --color-yellow: #fbbf24;
+    --color-green: #16a34a;
+    --color-red: #ef4444;
+    --color-yellow: #d97706;
 
-    --color-text: #f1f5f9;
-    --color-muted: #64748b;
-    --color-subtle: #334155;
+    --color-text: #1b1b18;
+    --color-muted: #706f6c;
+    --color-subtle: #a1a09e;
 }
 
 @layer base {
@@ -36,12 +38,12 @@
     body {
         background-color: var(--color-bg);
         color: var(--color-text);
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: var(--font-sans);
         -webkit-font-smoothing: antialiased;
     }
 
     ::selection {
-        background: var(--color-accent-glow);
+        background: color-mix(in srgb, var(--color-accent) 15%, transparent);
         color: var(--color-accent);
     }
 }
@@ -55,11 +57,11 @@
     }
 
     .glow-text {
-        text-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 40%, transparent);
+        color: var(--color-accent);
     }
 
     .glow-border {
-        box-shadow: 0 0 0 1px var(--color-border), 0 0 20px var(--color-accent-glow);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.06);
     }
 
     .terminal-prompt::before {

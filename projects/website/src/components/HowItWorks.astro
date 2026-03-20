@@ -36,7 +36,7 @@ const steps = [
         <!-- Section header -->
         <div class="mb-20 text-center">
             <p class="text-xs uppercase tracking-widest text-[var(--color-accent)] font-[family-name:var(--font-mono)] mb-4">How it works</p>
-            <h2 class="text-4xl md:text-5xl text-[var(--color-text)] tracking-tight" style="font-family: var(--font-display);">
+            <h2 class="text-4xl md:text-5xl text-[var(--color-text)] tracking-[-0.04em] font-normal">
                 Three steps to<br /><em class="not-italic text-[var(--color-muted)]">zero silent breakage</em>
             </h2>
         </div>
@@ -54,8 +54,8 @@ const steps = [
                         </div>
                     </div>
                     <!-- Code side -->
-                    <div class={`bg-[var(--color-surface)] p-10 flex items-center ${i % 2 === 1 ? 'lg:order-first' : ''}`}>
-                        <pre class="font-[family-name:var(--font-mono)] text-sm text-[var(--color-muted)] leading-7 whitespace-pre-wrap overflow-auto w-full"><code set:html={step.code.replace(/✓/g, '<span style="color: var(--color-green)">✓</span>').replace(/✗/g, '<span style="color: var(--color-red)">✗</span>').replace(/6\.5/g, '<span style="color: var(--color-yellow)">6.5</span>').replace(/14\.2\.0/g, '<span style="color: var(--color-red)">14.2.0</span>').replace(/12\.9\.0/g, '<span style="color: var(--color-green)">12.9.0</span>')}></code></pre>
+                    <div class={`bg-[var(--color-surface-dark)] p-10 flex items-center ${i % 2 === 1 ? 'lg:order-first' : ''}`}>
+                        <pre class="font-[family-name:var(--font-mono)] text-sm text-white/50 leading-7 whitespace-pre-wrap overflow-auto w-full"><code set:html={step.code.replace(/✓/g, '<span style="color: #4ade80">✓</span>').replace(/✗/g, '<span style="color: #f87171">✗</span>').replace(/6\.5/g, '<span style="color: #fbbf24">6.5</span>').replace(/14\.2\.0/g, '<span style="color: #f87171">14.2.0</span>').replace(/12\.9\.0/g, '<span style="color: #4ade80">12.9.0</span>')}></code></pre>
                     </div>
                 </div>
             ))}
