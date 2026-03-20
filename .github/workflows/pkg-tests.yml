@@ -1,10 +1,11 @@
-name: Tests
+name: '[NPM Package] Tests'
 
 on:
     pull_request:
     push:
         branches:
             - master
+            - develop
 
 jobs:
     test:
@@ -25,4 +26,4 @@ jobs:
               run: npm ci
 
             - name: Run tests
-              run: npm test
+              run: npm run pkg:test

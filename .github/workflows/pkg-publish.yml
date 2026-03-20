@@ -1,4 +1,4 @@
-name: Publish to npm
+name: '[NPM Package] Publish'
 
 on:
     release:
@@ -25,9 +25,9 @@ jobs:
               run: npm ci
 
             - name: Run tests
-              run: npm test
+              run: npm run pkg:test
 
             - name: Publish to npm
-              run: npm publish --access public
+              run: npm publish --workspace=projects/npm-packages --access public
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

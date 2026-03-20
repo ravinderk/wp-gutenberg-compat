@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+    --font-display: "Instrument Serif", Georgia, serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+    --color-bg: #07090f;
+    --color-surface: #0d1117;
+    --color-border: #1e2d3d;
+    --color-border-subtle: #131d27;
+
+    --color-accent: #3b82f6;
+    --color-accent-muted: #1d4ed8;
+    --color-accent-glow: #3b82f620;
+
+    --color-green: #10b981;
+    --color-red: #f87171;
+    --color-yellow: #fbbf24;
+
+    --color-text: #f1f5f9;
+    --color-muted: #64748b;
+    --color-subtle: #334155;
+}
+
+@layer base {
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+        background: var(--color-accent-glow);
+        color: var(--color-accent);
+    }
+}
+
+@layer utilities {
+    .grid-bg {
+        background-image:
+            linear-gradient(var(--color-border-subtle) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px);
+        background-size: 48px 48px;
+    }
+
+    .glow-text {
+        text-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 40%, transparent);
+    }
+
+    .glow-border {
+        box-shadow: 0 0 0 1px var(--color-border), 0 0 20px var(--color-accent-glow);
+    }
+
+    .terminal-prompt::before {
+        content: "$ ";
+        color: var(--color-green);
+        font-family: var(--font-mono);
+    }
+}

@@ -1,4 +1,4 @@
-name: Generate Compat Data
+name: '[NPM Package] Generate Compat Data'
 
 on:
     schedule:
@@ -37,18 +37,18 @@ jobs:
             - name: Run scraper
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: node scripts/generate.js
+              run: node projects/npm-packages/scripts/generate.js
 
             - name: Check for changes
               id: diff
               run: |
-                  git diff --quiet src/data/compat-data.json && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+                  git diff --quiet projects/npm-packages/src/data/compat-data.json && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
             - name: Read latest tag from data
               if: steps.diff.outputs.changed == 'true'
               id: tag
               run: |
-                  TAG=$(node -e "const d=require('./src/data/compat-data.json'); console.log(d.lastGutenbergTag)")
+                  TAG=$(node -e "const d=require('./projects/npm-packages/src/data/compat-data.json'); console.log(d.lastGutenbergTag)")
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
             - name: Dry run report
@@ -61,12 +61,12 @@ jobs:
                   echo "" >> "$GITHUB_STEP_SUMMARY"
                   echo "### What would happen" >> "$GITHUB_STEP_SUMMARY"
                   echo "- A new branch \`chore/update-compat-data-${TAG}\` would be created." >> "$GITHUB_STEP_SUMMARY"
-                  echo "- \`src/data/compat-data.json\` would be committed with the updated compat data for Gutenberg **${TAG}**." >> "$GITHUB_STEP_SUMMARY"
-                  echo "- A pull request would be opened targeting \`master\` and assigned to **ravinderk** for review." >> "$GITHUB_STEP_SUMMARY"
+                  echo "- \`projects/npm-packages/src/data/compat-data.json\` would be committed with the updated compat data for Gutenberg **${TAG}**." >> "$GITHUB_STEP_SUMMARY"
+                  echo "- A pull request would be opened targeting \`develop\` and assigned to **ravinderk** for review." >> "$GITHUB_STEP_SUMMARY"
                   echo "" >> "$GITHUB_STEP_SUMMARY"
                   echo "### Diff preview" >> "$GITHUB_STEP_SUMMARY"
                   echo '```diff' >> "$GITHUB_STEP_SUMMARY"
-                  git diff src/data/compat-data.json >> "$GITHUB_STEP_SUMMARY"
+                  git diff projects/npm-packages/src/data/compat-data.json >> "$GITHUB_STEP_SUMMARY"
                   echo '```' >> "$GITHUB_STEP_SUMMARY"
 
             - name: No changes report
@@ -76,7 +76,7 @@ jobs:
                   echo "" >> "$GITHUB_STEP_SUMMARY"
                   echo "**Mode:** Dry Run — no changes detected." >> "$GITHUB_STEP_SUMMARY"
                   echo "" >> "$GITHUB_STEP_SUMMARY"
-                  echo "\`src/data/compat-data.json\` is already up to date. No branch or PR would be created." >> "$GITHUB_STEP_SUMMARY"
+                  echo "\`projects/npm-packages/src/data/compat-data.json\` is already up to date. No branch or PR would be created." >> "$GITHUB_STEP_SUMMARY"
 
             - name: Create branch and commit updated compat data
               if: steps.diff.outputs.changed == 'true' && inputs.dry_run != 'true'
@@ -86,7 +86,7 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   BRANCH="chore/update-compat-data-${{ steps.tag.outputs.tag }}"
                   git checkout -b "$BRANCH"
-                  git add src/data/compat-data.json
+                  git add projects/npm-packages/src/data/compat-data.json
                   git commit -m "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}"
                   git push origin "$BRANCH"
                   echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
@@ -98,7 +98,7 @@ jobs:
               run: |
                   gh pr create \
                     --head "${{ steps.commit.outputs.branch }}" \
-                    --base master \
+                    --base develop \
                     --title "chore(data): update compat data for Gutenberg ${{ steps.tag.outputs.tag }}" \
                     --body "Automated update of compatibility data for Gutenberg ${{ steps.tag.outputs.tag }}." \
                     --reviewer ravinderk

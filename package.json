@@ -1,48 +1,25 @@
 {
-    "name": "@ravi.nder/wp-gutenberg-compat",
-    "version": "0.3.0",
-    "description": "CLI tool to verify @wordpress/* packages are compatible with your plugin's minimum supported WordPress version",
-    "bin": {
-        "wp-gutenberg-compat": "./src/cli.js"
-    },
-    "files": [
-        "src",
-        "CHANGELOG.md"
+    "name": "wp-gutenberg-compat-monorepo",
+    "private": true,
+    "workspaces": [
+        "projects/*"
     ],
     "scripts": {
-        "generate": "node scripts/generate.js",
-        "test": "vitest run",
         "lint": "eslint .",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "prepare": "husky"
-    },
-    "engines": {
-        "node": ">=18"
-    },
-    "keywords": [
-        "wordpress",
-        "gutenberg",
-        "compatibility",
-        "cli"
-    ],
-    "license": "MIT",
-    "publishConfig": {
-        "access": "public"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ravinderk/wp-gutenberg-compat.git"
+        "prepare": "husky",
+        "pkg:test": "npm run test --workspace=projects/npm-packages",
+        "pkg:lint": "npm run lint --workspace=projects/npm-packages",
+        "pkg:generate": "npm run generate --workspace=projects/npm-packages",
+        "web:dev": "npm run dev --workspace=projects/website",
+        "web:build": "npm run build --workspace=projects/website"
     },
     "devDependencies": {
         "@eslint/compat": "^2.0.3",
         "eslint-config-prettier": "^10.1.8",
         "husky": "^9.1.7",
         "lint-staged": "^16.4.0",
-        "prettier": "^3.8.1",
-        "vitest": "^3.0.0"
-    },
-    "dependencies": {
-        "semver": "^7.7.4"
+        "prettier": "^3.8.1"
     }
 }
