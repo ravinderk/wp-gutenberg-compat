@@ -10,6 +10,7 @@ const {
     formatIssuesReport,
     printInstallReport,
     printSuggestedInstallCommands,
+    printRemoteSuggestedAction,
 } = require('./output.js');
 const { buildAsciiTable } = require('./table.js');
 
@@ -116,8 +117,12 @@ async function runAnalyze(options) {
 
     const packageSpecs = collectRecommendedInstallSpecs(issues);
     if (showSuggestedCommands) {
-        const { packageManager } = resolveProjectContext(options.dir);
-        printSuggestedInstallCommands(packageSpecs, packageManager);
+        if (options.remote) {
+            printRemoteSuggestedAction(packageSpecs);
+        } else {
+            const { packageManager } = resolveProjectContext(options.dir);
+            printSuggestedInstallCommands(packageSpecs, packageManager);
+        }
     }
 
     return { exitCode: 1, issues, packageSpecs };

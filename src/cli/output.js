@@ -101,10 +101,22 @@ function printSuggestedInstallCommands(packageSpecs, detectedPackageManager = nu
     console.error('');
 }
 
+function printRemoteSuggestedAction(packageSpecs) {
+    if (packageSpecs.length === 0) return;
+
+    console.error('\nSuggested action (remote project):');
+    console.error('  The following packages should be installed at a compatible version in that project:');
+    for (const spec of packageSpecs) {
+        console.error(`    - ${spec}`);
+    }
+    console.error('');
+}
+
 module.exports = {
     formatIssuesReport,
     formatNoAutomaticDowngradeMessage,
     formatIssue,
     printInstallReport,
     printSuggestedInstallCommands,
+    printRemoteSuggestedAction,
 };
