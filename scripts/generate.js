@@ -220,7 +220,7 @@ async function main() {
     try {
         existing = JSON.parse(await readFile(DATA_FILE, 'utf8'));
     } catch {
-        existing = { generated: null, lastGutenbergTag: null, wpGutenbergMap: {}, packages: {} };
+        existing = { generated: null, lastGutenbergTag: null, scrapedVersions: [], wpGutenbergMap: {}, packages: {} };
     }
 
     // 2. Fetch WP ↔ GB map
@@ -252,20 +252,20 @@ async function main() {
         }
     }
 
-    // 5. Check for new tags vs existing data
-    const latestTag = tagsToScrape[0];
-    if (existing.lastGutenbergTag && latestTag) {
-        const existingVer = existing.lastGutenbergTag.replace(/^v/, '');
-        const latestVer = latestTag.name.replace(/^v/, '');
-        if (compareVersions(latestVer, existingVer) <= 0) {
-            console.log(`No new Gutenberg tags detected (latest: ${latestTag.name}). Nothing to do.`);
-            process.exit(0);
-        }
-        console.log(`New tag detected: ${latestTag.name} (was ${existing.lastGutenbergTag})`);
+    // 5. Filter to only GB base versions not yet scraped
+    const alreadyScraped = new Set(existing.scrapedVersions ?? []);
+    const tagsToProcess = tagsToScrape.filter((t) => !alreadyScraped.has(t.gbBase));
+
+    if (tagsToProcess.length === 0) {
+        console.log('All relevant Gutenberg versions already scraped. Nothing to do.');
+        process.exit(0);
     }
 
-    // 6. Scrape package versions for each relevant tag
-    console.log(`Scraping ${tagsToScrape.length} Gutenberg tags…`);
+    console.log(
+        `Scraping ${tagsToProcess.length} new GB version(s): ${tagsToProcess.map((t) => t.gbBase).join(', ')}…`,
+    );
+
+    // 6. Scrape package versions for each new tag and merge with existing data
 
     // Build a reverse lookup: gbBase → wpVersion
     const gbToWp = {};
@@ -273,9 +273,10 @@ async function main() {
         gbToWp[gb] = wp;
     }
 
-    const packages = {};
+    const packages = existing.packages ?? {};
+    const newlyScraped = [];
 
-    for (const tag of tagsToScrape) {
+    for (const tag of tagsToProcess) {
         console.log(`  ${tag.name} (GB ${tag.gbBase}, WP ${gbToWp[tag.gbBase]})…`);
         const versions = await fetchPackageVersionsForTag(tag.name);
 
@@ -286,14 +287,24 @@ async function main() {
                 wordpress: gbToWp[tag.gbBase],
             };
         }
+
+        newlyScraped.push(tag.gbBase);
     }
 
     // 7. Build final data object
+    const latestTag = tagsToScrape[0];
+    const scrapedVersions = [...new Set([...(existing.scrapedVersions ?? []), ...newlyScraped])];
+    const sortedPackages = Object.fromEntries(
+        Object.keys(packages)
+            .sort()
+            .map((k) => [k, packages[k]]),
+    );
     const data = {
         generated: new Date().toISOString(),
         lastGutenbergTag: latestTag ? latestTag.name : existing.lastGutenbergTag,
+        scrapedVersions,
         wpGutenbergMap: wpGbMap,
-        packages,
+        packages: sortedPackages,
     };
 
     // 8. Write
