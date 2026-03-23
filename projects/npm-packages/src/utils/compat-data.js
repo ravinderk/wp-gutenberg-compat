@@ -83,7 +83,23 @@ function resolveRangeInCompatData(compatData, pkgName, range) {
     const pkgEntry = compatData.packages[pkgName];
     if (!pkgEntry) return null;
     const versions = Object.keys(pkgEntry);
-    return semver.maxSatisfying(versions, range);
+
+    const exact = semver.maxSatisfying(versions, range);
+    if (exact) return exact;
+
+    // Fallback: the range's minimum may be higher than any tracked version
+    // (e.g. ^30.6.5 when compat-data only has 30.6.0). Use the highest
+    // tracked version that is <= the range's lower bound as an approximation.
+    const minVer = semver.minVersion(range);
+    if (!minVer) return null;
+
+    let best = null;
+    for (const v of versions) {
+        if (semver.lte(v, minVer) && (!best || semver.gt(v, best))) {
+            best = v;
+        }
+    }
+    return best;
 }
 
 module.exports = {
