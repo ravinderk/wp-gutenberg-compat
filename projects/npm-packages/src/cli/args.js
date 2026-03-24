@@ -8,6 +8,7 @@ function parseArgs(argv) {
         dir: process.cwd(),
         unexpectedArgs: [],
         infoPackages: [],
+        openPackage: null,
         remote: null,
         wp: null,
     };
@@ -20,6 +21,18 @@ function parseArgs(argv) {
             for (let j = i + 1; j < args.length; j++) {
                 if (args[j] !== '--help' && args[j] !== '-h' && !args[j].startsWith('-')) {
                     options.infoPackages.push(args[j]);
+                }
+            }
+            break;
+        }
+
+        if (args[i] === 'open') {
+            // The next non-flag argument is the package name
+            for (let j = i + 1; j < args.length; j++) {
+                if (args[j] === '--wp' && args[j + 1]) {
+                    options.wp = args[++j];
+                } else if (args[j] !== '--help' && args[j] !== '-h' && !args[j].startsWith('-')) {
+                    options.openPackage = args[j];
                 }
             }
             break;
