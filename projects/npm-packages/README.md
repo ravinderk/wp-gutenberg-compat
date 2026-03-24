@@ -19,6 +19,8 @@ npx @ravi.nder/wp-gutenberg-compat@latest analyze
 npx @ravi.nder/wp-gutenberg-compat@latest install
 npx @ravi.nder/wp-gutenberg-compat@latest info
 npx @ravi.nder/wp-gutenberg-compat@latest info @wordpress/block-editor @wordpress/data
+npx @ravi.nder/wp-gutenberg-compat@latest open @wordpress/block-editor
+npx @ravi.nder/wp-gutenberg-compat@latest open @wordpress/block-editor --wp 6.5
 ```
 
 ### Option 2 — Install locally in your project (recommended for repeated use)
@@ -38,7 +40,8 @@ Better for CI pipelines and teams, since the version is pinned and there's no ne
         "scripts": {
             "info": "wp-gutenberg-compat info",
             "compat": "wp-gutenberg-compat analyze",
-            "compat:fix": "wp-gutenberg-compat install"
+            "compat:fix": "wp-gutenberg-compat install",
+            "open": "wp-gutenberg-compat open"
         }
     }
     ```
@@ -50,9 +53,26 @@ Better for CI pipelines and teams, since the version is pinned and there's no ne
     npm run info -- @wordpress/block-editor @wordpress/data
     npm run compat
     npm run compat:fix
+    npm run open -- @wordpress/block-editor
+    npm run open -- @wordpress/block-editor --wp 6.5
     ```
 
-### Option 3 — Remote analysis (no clone needed)
+### Option 3 — Open an npm package page
+
+Quickly open the npmjs.com page for any `@wordpress/*` package at the resolved version — either the locally installed version, or the version compatible with a specific WordPress release:
+
+```sh
+# Open the page for the locally installed version of @wordpress/block-editor
+npx @ravi.nder/wp-gutenberg-compat@latest open @wordpress/block-editor
+
+# Open the page for the version compatible with WordPress 6.5
+npx @ravi.nder/wp-gutenberg-compat@latest open @wordpress/block-editor --wp 6.5
+```
+
+- If `--wp` is provided, the tool opens the version recommended for that WordPress release.
+- Without `--wp`, it opens the locally installed version (falling back to the latest tracked version if not installed).
+
+### Option 4 — Remote analysis (no clone needed)
 
 Good for auditing a third-party plugin or any project you don't have checked out locally. Pass the raw URL of the target `package.json` together with the minimum WordPress version you want to check against:
 
