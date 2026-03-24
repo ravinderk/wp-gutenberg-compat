@@ -1,6 +1,6 @@
 {
     "name": "@ravi.nder/wp-gutenberg-compat",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "CLI tool to verify @wordpress/* packages are compatible with your plugin's minimum supported WordPress version",
     "bin": {
         "wp-gutenberg-compat": "./src/cli.js"
