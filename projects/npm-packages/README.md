@@ -88,6 +88,48 @@ npx @ravi.nder/wp-gutenberg-compat@latest analyze \
 - **The URL must be publicly accessible.** URLs behind authentication, private repositories, or VPNs will not work.
 - **The URL must serve the raw file content (plain text/JSON), not an HTML page.** GitHub repository browser URLs (`github.com/.../blob/...`) return HTML and will not work — use the raw URL instead (`raw.githubusercontent.com/...`).
 
+## Q&A
+
+### Why should I use this instead of `wp-scripts packages-update --dist-tag`?
+
+`wp-scripts packages-update` supports a `--dist-tag` option (e.g. `--dist-tag=wp-6.5`) that installs `@wordpress/*` packages at the versions shipped with a specific WordPress major release. So both tools can pin packages to a target WordPress version — here's how they differ:
+
+|                                     | `wp-scripts packages-update --dist-tag`                     | `wp-gutenberg-compat`                                                       |
+| ----------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Reads your plugin/theme header?** | No — you must manually pass the correct `--dist-tag=wp-X.Y` | Yes — auto-detects `Requires at least` from your plugin file or `style.css` |
+| **Analyze-only mode**               | No — it always modifies `package.json`                      | Yes — `analyze` reports issues without changing anything                    |
+| **Selective updates**               | Updates _all_ `@wordpress/*` packages                       | Only downgrades the packages that are actually incompatible                 |
+| **Remote auditing**                 | No — requires a local checkout                              | Yes — pass `--remote <url>` to audit any public `package.json`              |
+| **CI guardrail**                    | No built-in check step                                      | `analyze` exits with a non-zero code so CI can catch drift                  |
+| **Requires `@wordpress/scripts`**   | Yes — must be installed as a dev dependency                 | No — works standalone via `npx`                                             |
+| **Browse package on npm**           | No                                                          | Yes — `open` command launches the npmjs.com page for the resolved version   |
+
+In short: if you already use `@wordpress/scripts`, `--dist-tag` is a quick way to bulk-set versions. `wp-gutenberg-compat` adds value when you want **automatic header detection**, a **non-destructive analysis step**, **CI integration**, **selective downgrades**, or **remote auditing** — without requiring `@wordpress/scripts` as a dependency.
+
+### Can I use both tools together?
+
+Yes. A common workflow is:
+
+1. Run `wp-scripts packages-update` to get the latest packages.
+2. Run `wp-gutenberg-compat analyze` to check whether any of those new versions are too new for your minimum WP version.
+3. Run `wp-gutenberg-compat install` to downgrade only the incompatible packages.
+
+### Does this tool modify my code?
+
+No. It only changes the versions listed in `package.json` (and re-runs your package manager's install). Your source files are never touched.
+
+### How does it know which package versions ship with which WordPress version?
+
+The tool bundles a compatibility map (`compat-data.json`) that records which `@wordpress/*` package versions were included in each WordPress + Gutenberg release. This map is regenerated from upstream data before every publish.
+
+### What if my project doesn't have a `Requires at least` header?
+
+The tool will warn you and exit early. You can bypass auto-detection by passing `--wp <version>` explicitly:
+
+```sh
+npx @ravi.nder/wp-gutenberg-compat@latest analyze --wp 6.5
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request on [GitHub](https://github.com/ravinderk/wp-gutenberg-compat).
