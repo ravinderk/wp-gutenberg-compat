@@ -6,6 +6,7 @@ on:
 
 jobs:
     publish:
+        if: startsWith(github.event.release.tag_name, 'npm-packages/v')
         runs-on: ubuntu-latest
         environment: npm-publish
         permissions:
