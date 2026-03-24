@@ -1,0 +1,28 @@
+name: Sync develop with master
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    sync:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: develop
+                  fetch-depth: 0
+
+            - name: Merge master into develop
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git merge origin/master --no-edit
+
+            - name: Push changes
+              run: git push origin develop
