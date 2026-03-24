@@ -1,0 +1,42 @@
+name: '[NPM Package] Publish'
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    publish:
+        if: startsWith(github.event.release.tag_name, 'npm-packages/v')
+        runs-on: ubuntu-latest
+        environment: npm-publish
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: master
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  registry-url: 'https://registry.npmjs.org'
+                  scope: '@ravi.nder'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npm run pkg:test
+
+            - name: Publish to npm
+              run: npm publish --workspace=projects/npm-packages --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Create release zip
+              run: npm pack --workspace=projects/npm-packages --pack-destination=${{ runner.temp }}
+
+            - name: Upload release zip
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: ${{ runner.temp }}/ravi.nder-wp-gutenberg-compat-*.tgz

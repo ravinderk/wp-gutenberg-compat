@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", monospace;
+
+    --color-bg: #ffffff;
+    --color-surface: #f8f8f6;
+    --color-surface-dark: #1b1b18;
+    --color-border: #e3e3e0;
+    --color-border-subtle: #f0f0ee;
+
+    --color-accent: #f53003;
+    --color-accent-muted: #d42a02;
+    --color-accent-glow: #f5300310;
+
+    --color-green: #16a34a;
+    --color-red: #ef4444;
+    --color-yellow: #d97706;
+
+    --color-text: #1b1b18;
+    --color-muted: #706f6c;
+    --color-subtle: #a1a09e;
+}
+
+@layer base {
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+        background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+        color: var(--color-accent);
+    }
+}
+
+@layer utilities {
+    .grid-bg {
+        background-image:
+            linear-gradient(var(--color-border-subtle) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px);
+        background-size: 48px 48px;
+    }
+
+    .glow-text {
+        color: var(--color-accent);
+    }
+
+    .glow-border {
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .terminal-prompt::before {
+        content: "$ ";
+        color: var(--color-green);
+        font-family: var(--font-mono);
+    }
+}

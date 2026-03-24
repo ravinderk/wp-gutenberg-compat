@@ -1,0 +1,43 @@
+{
+    "name": "@ravi.nder/wp-gutenberg-compat",
+    "version": "0.4.0",
+    "description": "CLI tool to verify @wordpress/* packages are compatible with your plugin's minimum supported WordPress version",
+    "bin": {
+        "wp-gutenberg-compat": "./src/cli.js"
+    },
+    "files": [
+        "src",
+        "CHANGELOG.md"
+    ],
+    "scripts": {
+        "generate": "node scripts/generate.js",
+        "test": "vitest run",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "keywords": [
+        "wordpress",
+        "gutenberg",
+        "compatibility",
+        "cli"
+    ],
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ravinderk/wp-gutenberg-compat.git",
+        "directory": "projects/npm-packages"
+    },
+    "devDependencies": {
+        "vitest": "^3.0.0"
+    },
+    "dependencies": {
+        "semver": "^7.7.4"
+    }
+}
