@@ -1,5 +1,5 @@
 ---
-name: update-website-changelog
+name: web-update-website-changelog
 description: 'Rebuild the website changelog page after npm-packages CHANGELOG.md has been updated. Verifies the changelog has new entries, rebuilds the site, and optionally commits the result.'
 mode: agent
 ---
