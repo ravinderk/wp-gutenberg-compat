@@ -3,6 +3,7 @@
 const { app } = require('../../app.js');
 const { buildAsciiTable } = require('../table.js');
 const { loadCompatData } = require('../../utils/compat-data.js');
+const { findWpVersionFromHeader } = require('../../utils/wp-header.js');
 
 function runInfo(options) {
     const compatData = loadCompatData(options.dataPath);
@@ -18,6 +19,22 @@ function runInfo(options) {
         const lines = [];
         lines.push(`wp-gutenberg-compat version: ${version}`);
         lines.push('');
+
+        const startDir = options.dir || process.cwd();
+        const { version: wpVersion, projectType, pluginFile } = findWpVersionFromHeader(startDir);
+        if (projectType) {
+            const name = projectType === 'theme' ? 'style.css' : pluginFile;
+            const label = (text) => `  ${text.padEnd(18)}`;
+            lines.push('Project');
+            lines.push('-------');
+            lines.push(`${label('Type:')}${projectType}`);
+            lines.push(`${label('Name:')}${name}`);
+            if (wpVersion) {
+                lines.push(`${label('Requires at least:')}${wpVersion}`);
+            }
+            lines.push('');
+        }
+
         lines.push('Supported package managers');
         lines.push('--------------------------');
         lines.push('  npm   (package-lock.json, npm-shrinkwrap.json)');
