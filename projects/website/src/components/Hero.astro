@@ -1,7 +1,7 @@
 ---
 import SocialShareBar from './SocialShareBar.astro';
 
-const shareUrl = 'https://github.com/ravinderk/wp-gutenberg-compat';
+const shareUrl = Astro.url.origin;
 const shareTitle = 'wp-gutenberg-compat';
 const shareDescription = 'Catch @wordpress/* package version mismatches before they reach your users.';
 ---

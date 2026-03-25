@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
 
 const changelogPath = resolve(process.cwd(), '../npm-packages/CHANGELOG.md');
 const raw = readFileSync(changelogPath, 'utf-8');
-const shareUrl = 'https://github.com/ravinderk/wp-gutenberg-compat/releases';
+const shareUrl = Astro.url.href;
 const shareTitle = 'wp-gutenberg-compat changelog';
 const shareDescription = 'Release history and latest updates for the wp-gutenberg-compat CLI.';
 
