@@ -1,0 +1,89 @@
+---
+import { LinkedInShareButton, SocialShare, TwitterShareButton } from 'astro-social-share';
+
+interface Props {
+    title: string;
+    description: string;
+    url: string;
+    label?: string;
+    align?: 'start' | 'center';
+}
+
+const BUTTONS = [TwitterShareButton, LinkedInShareButton];
+
+const {
+    title,
+    description,
+    url,
+    label = 'Share',
+    align = 'start',
+} = Astro.props;
+---
+
+<div class:list={['share-bar', align === 'center' && 'share-bar--center']}>
+    <p class="share-bar__label">{label}</p>
+    <SocialShare buttons={BUTTONS} title={title} description={description} url={url}>
+        <style is:global slot="astro-social-share-css">
+            .share-bar .astro-social-share {
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.625rem;
+                flex-wrap: wrap;
+            }
+
+            .share-bar .astro-social-share a {
+                width: 2.625rem;
+                height: 2.625rem;
+                margin-right: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                border: 1px solid var(--color-border);
+                background: color-mix(in srgb, var(--color-surface) 88%, white);
+                transition:
+                    transform 160ms ease,
+                    border-color 160ms ease,
+                    box-shadow 160ms ease,
+                    background-color 160ms ease;
+            }
+
+            .share-bar .astro-social-share a:hover {
+                transform: translateY(-1px);
+                border-color: var(--color-subtle);
+                background: white;
+                box-shadow: 0 10px 24px rgba(27, 27, 24, 0.08);
+            }
+
+            .share-bar .astro-social-share svg {
+                width: 1rem;
+                height: 1rem;
+                fill: var(--color-text);
+                transition: fill 160ms ease;
+            }
+        </style>
+    </SocialShare>
+</div>
+
+<style>
+    .share-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        flex-wrap: wrap;
+    }
+
+    .share-bar--center {
+        justify-content: center;
+    }
+
+    .share-bar__label {
+        font-size: 0.6875rem;
+        line-height: 1;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+        font-weight: 600;
+    }
+</style>

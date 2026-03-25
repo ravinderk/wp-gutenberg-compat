@@ -1,4 +1,9 @@
 ---
+import SocialShareBar from './SocialShareBar.astro';
+
+const shareUrl = 'https://github.com/ravinderk/wp-gutenberg-compat';
+const shareTitle = 'wp-gutenberg-compat';
+const shareDescription = 'Catch @wordpress/* package version mismatches before they reach your users.';
 ---
 
 <section class="relative min-h-screen flex flex-col items-center justify-center pt-28 pb-16 overflow-hidden">
@@ -34,6 +39,16 @@
             >
                 See how it works →
             </a>
+        </div>
+
+        <div class="mb-10 flex justify-center">
+            <SocialShareBar
+                align="center"
+                label="Share the tool"
+                url={shareUrl}
+                title={shareTitle}
+                description={shareDescription}
+            />
         </div>
 
         <!-- Hero terminal -->

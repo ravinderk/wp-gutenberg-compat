@@ -2,12 +2,16 @@
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import SocialShareBar from '../components/SocialShareBar.astro';
 import '../styles/global.css';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const changelogPath = resolve(process.cwd(), '../npm-packages/CHANGELOG.md');
 const raw = readFileSync(changelogPath, 'utf-8');
+const shareUrl = 'https://github.com/ravinderk/wp-gutenberg-compat/releases';
+const shareTitle = 'wp-gutenberg-compat changelog';
+const shareDescription = 'Release history and latest updates for the wp-gutenberg-compat CLI.';
 
 // Parse the changelog markdown into structured data
 const sections: { version: string; date: string; categories: { name: string; items: string[] }[] }[] = [];
@@ -86,6 +90,14 @@ function categoryIcon(name: string) {
                 All notable changes to the
                 <a href="https://www.npmjs.com/package/@ravi.nder/wp-gutenberg-compat" class="underline hover:text-[var(--color-text)] transition-colors">npm package</a>.
             </p>
+            <div class="mt-5">
+                <SocialShareBar
+                    label="Share updates"
+                    url={shareUrl}
+                    title={shareTitle}
+                    description={shareDescription}
+                />
+            </div>
             <div class="mt-10 space-y-12">
                 {sections.map((section, idx) => (
                     <article class="relative pl-6 border-l-2 border-[var(--color-border)]">
