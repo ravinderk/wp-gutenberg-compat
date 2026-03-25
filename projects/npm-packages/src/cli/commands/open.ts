@@ -1,19 +1,15 @@
-'use strict';
-
-const { spawn } = require('node:child_process');
-const { app } = require('../../app.js');
-const { loadCompatData, getRecommendedVersionForWp } = require('../../utils/compat-data.js');
-const { getInstalledVersion } = require('../../utils/wp-header.js');
-const { compareVersions } = require('../../utils/version.js');
+import { spawn } from 'node:child_process';
+import { app } from '../../app.js';
+import { loadCompatData, getRecommendedVersionForWp } from '../../utils/compat-data.js';
+import { getInstalledVersion } from '../../utils/wp-header.js';
+import { compareVersions } from '../../utils/version.js';
+import type { CliOptions } from '../../types/index.js';
 
 /**
  * Return the highest version tracked in compat-data for a given package.
- *
- * @param {object} pkgEntry  The package entry from compat-data (version → info map).
- * @returns {string|null}
  */
-function getLatestCompatVersion(pkgEntry) {
-    let best = null;
+export function getLatestCompatVersion(pkgEntry: Record<string, unknown>): string | null {
+    let best: string | null = null;
     for (const ver of Object.keys(pkgEntry)) {
         if (!best || compareVersions(ver, best) > 0) {
             best = ver;
@@ -25,10 +21,8 @@ function getLatestCompatVersion(pkgEntry) {
 /**
  * Open a URL in the default browser using a platform-appropriate command.
  * Uses spawn with an argument array to avoid shell injection.
- *
- * @param {string} url
  */
-function openUrl(url) {
+export function openUrl(url: string): void {
     let child;
     if (process.platform === 'darwin') {
         child = spawn('open', [url], { detached: true, stdio: 'ignore' });
@@ -43,7 +37,7 @@ function openUrl(url) {
     child.unref();
 }
 
-function runOpen(options, urlOpener = openUrl) {
+export function runOpen(options: CliOptions, urlOpener: (url: string) => void = openUrl): number {
     const reporter = app.make('Reporter');
     const { openPackage, wp, dir, dataPath } = options;
 
@@ -65,7 +59,7 @@ function runOpen(options, urlOpener = openUrl) {
         return 1;
     }
 
-    let version = null;
+    let version: string | null = null;
 
     if (wp) {
         version = getRecommendedVersionForWp(compatData, openPackage, wp);
@@ -93,5 +87,3 @@ function runOpen(options, urlOpener = openUrl) {
     urlOpener(url);
     return 0;
 }
-
-module.exports = { runOpen, getLatestCompatVersion, openUrl };

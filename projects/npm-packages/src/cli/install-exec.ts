@@ -1,20 +1,19 @@
-'use strict';
+import path from 'node:path';
+import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { app } from '../app.js';
+import type { PackageManager } from '../types/index.js';
 
-const path = require('node:path');
-const fs = require('node:fs');
-const { spawnSync } = require('node:child_process');
-const { app } = require('../app.js');
-
-function detectPackageManager(projectDir) {
-    const lockfilesByManager = {
+export function detectPackageManager(projectDir: string): PackageManager | null {
+    const lockfilesByManager: Record<PackageManager, string[]> = {
         bun: ['bun.lockb', 'bun.lock'],
         pnpm: ['pnpm-lock.yaml'],
         yarn: ['yarn.lock'],
         npm: ['package-lock.json', 'npm-shrinkwrap.json'],
     };
 
-    const detectedManagers = [];
-    for (const [manager, lockfiles] of Object.entries(lockfilesByManager)) {
+    const detectedManagers: PackageManager[] = [];
+    for (const [manager, lockfiles] of Object.entries(lockfilesByManager) as [PackageManager, string[]][]) {
         const found = lockfiles.some((file) => fs.existsSync(path.join(projectDir, file)));
         if (found) {
             detectedManagers.push(manager);
@@ -28,7 +27,15 @@ function detectPackageManager(projectDir) {
     return null;
 }
 
-function buildInstallArgs(packageManager, packageSpecs, options = {}) {
+interface BuildInstallArgsOptions {
+    dev?: boolean;
+}
+
+export function buildInstallArgs(
+    packageManager: PackageManager,
+    packageSpecs: string[],
+    options: BuildInstallArgsOptions = {},
+): string[] | null {
     const { dev = false } = options;
 
     if (packageManager === 'npm') {
@@ -50,13 +57,17 @@ function buildInstallArgs(packageManager, packageSpecs, options = {}) {
     return null;
 }
 
-function buildInstallCommand(packageManager, packageSpecs, options = {}) {
+export function buildInstallCommand(
+    packageManager: PackageManager,
+    packageSpecs: string[],
+    options: BuildInstallArgsOptions = {},
+): string | null {
     const args = buildInstallArgs(packageManager, packageSpecs, options);
     if (!args) return null;
     return [packageManager, ...args].join(' ');
 }
 
-function runInstall(projectDir, packageManager, packageSpecs) {
+export function runInstall(projectDir: string, packageManager: PackageManager, packageSpecs: string[]): boolean {
     const args = buildInstallArgs(packageManager, packageSpecs);
     if (!args) {
         const reporter = app.make('Reporter');
@@ -76,10 +87,3 @@ function runInstall(projectDir, packageManager, packageSpecs) {
 
     return result.status === 0;
 }
-
-module.exports = {
-    buildInstallArgs,
-    buildInstallCommand,
-    detectPackageManager,
-    runInstall,
-};

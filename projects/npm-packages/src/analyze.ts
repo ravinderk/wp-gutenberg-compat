@@ -1,42 +1,50 @@
-const { discoverWpPackages } = require('./utils/discover-wp-packages.js');
-const { compareVersions, stripPreRelease } = require('./utils/version.js');
-const {
+import { discoverWpPackages } from './utils/discover-wp-packages.js';
+import { compareVersions, stripPreRelease } from './utils/version.js';
+import {
     loadCompatData,
     getRequiredWpVersion,
     getRecommendedVersionForWp,
     resolveRangeInCompatData,
-} = require('./utils/compat-data.js');
-const { findWpVersionFromHeader, getInstalledVersion } = require('./utils/wp-header.js');
+} from './utils/compat-data.js';
+import { findWpVersionFromHeader, getInstalledVersion } from './utils/wp-header.js';
+import type { CompatData, CompatIssue, MissingMinWpIssue, IncompatibleIssue } from './types/index.js';
+
+interface AnalyzeOptions {
+    dir?: string;
+    dataPath?: string | null;
+    wp?: string | null;
+}
+
+interface AnalyzeRemoteOptions {
+    remote: string;
+    wp: string;
+    dataPath?: string | null;
+}
 
 /**
  * Analyze @wordpress/* packages in a project for WordPress version compatibility.
  *
- * @param {object} [options]
- * @param {string} [options.dir=process.cwd()]  Project directory to analyze.
- * @param {string|null} [options.dataPath=null]  Path to a custom compat-data.json file.
- * @param {string|null} [options.wp=null]  Override minimum WordPress version.
- * @returns {Array<object>}  Array of issues found. Empty array means everything is compatible.
- *
- * Issue shapes:
- *   { type: 'missing-min-wp', projectType: 'plugin'|'theme'|null, pluginFile: string|null }
- *   { type: 'incompatible', pkgName, installedVersion, requiredWp, minWp, recommendedVersion }
+ * @returns Array of issues found. Empty array means everything is compatible.
  */
-function analyze({ dir = process.cwd(), dataPath = null, wp = null } = {}) {
-    const issues = [];
+export function analyze({ dir = process.cwd(), dataPath = null, wp = null }: AnalyzeOptions = {}): CompatIssue[] {
+    const issues: CompatIssue[] = [];
 
-    let compatData;
+    let compatData: CompatData;
     try {
         compatData = loadCompatData(dataPath);
     } catch {
         return issues;
     }
 
-    let minWp = wp;
-    let projectType = null;
-    let pluginFile = null;
+    let minWp: string | null = wp;
+    let projectType: MissingMinWpIssue['projectType'] = null;
+    let pluginFile: string | null = null;
 
     if (!minWp) {
-        ({ version: minWp, projectType, pluginFile } = findWpVersionFromHeader(dir));
+        const header = findWpVersionFromHeader(dir);
+        minWp = header.version;
+        projectType = header.projectType;
+        pluginFile = header.pluginFile;
     }
 
     if (!minWp) {
@@ -53,14 +61,15 @@ function analyze({ dir = process.cwd(), dataPath = null, wp = null } = {}) {
         if (!requiredWp) continue;
         if (compareVersions(requiredWp, minWp) > 0) {
             const recommendedVersion = getRecommendedVersionForWp(compatData, pkgName, minWp);
-            issues.push({
+            const issue: IncompatibleIssue = {
                 type: 'incompatible',
                 pkgName,
                 installedVersion: stripPreRelease(installedVersion),
                 requiredWp,
                 minWp,
                 recommendedVersion,
-            });
+            };
+            issues.push(issue);
         }
     }
 
@@ -69,17 +78,11 @@ function analyze({ dir = process.cwd(), dataPath = null, wp = null } = {}) {
 
 /**
  * Analyze @wordpress/* packages from a remote package.json URL.
- *
- * @param {object} options
- * @param {string} options.remote   URL of the remote package.json to fetch.
- * @param {string} options.wp       Minimum WordPress version (required).
- * @param {string|null} [options.dataPath=null]  Path to a custom compat-data.json file.
- * @returns {Promise<Array<object>>}  Array of issues found.
  */
-async function analyzeRemote({ remote, wp, dataPath = null } = {}) {
-    const issues = [];
+export async function analyzeRemote({ remote, wp, dataPath = null }: AnalyzeRemoteOptions): Promise<CompatIssue[]> {
+    const issues: CompatIssue[] = [];
 
-    let compatData;
+    let compatData: CompatData;
     try {
         compatData = loadCompatData(dataPath);
     } catch {
@@ -88,29 +91,28 @@ async function analyzeRemote({ remote, wp, dataPath = null } = {}) {
 
     const minWp = wp;
 
-    let pkgJson;
-    let response;
+    let response: Response;
     try {
         response = await fetch(remote);
     } catch (err) {
-        throw new Error(`Failed to fetch remote package.json from ${remote}: ${err.message}`);
+        throw new Error(`Failed to fetch remote package.json from ${remote}: ${(err as Error).message}`);
     }
 
     if (!response.ok) {
         throw new Error(`Failed to fetch remote package.json from ${remote}: HTTP ${response.status}`);
     }
 
-    let text;
+    let pkgJson: { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
     try {
-        text = await response.text();
-        pkgJson = JSON.parse(text);
+        const text = await response.text();
+        pkgJson = JSON.parse(text) as typeof pkgJson;
     } catch {
         throw new Error(`Invalid JSON returned from ${remote}`);
     }
 
-    const allDeps = {
-        ...(pkgJson.dependencies || {}),
-        ...(pkgJson.devDependencies || {}),
+    const allDeps: Record<string, string> = {
+        ...(pkgJson.dependencies ?? {}),
+        ...(pkgJson.devDependencies ?? {}),
     };
 
     for (const [pkgName, range] of Object.entries(allDeps)) {
@@ -124,18 +126,19 @@ async function analyzeRemote({ remote, wp, dataPath = null } = {}) {
 
         if (compareVersions(requiredWp, minWp) > 0) {
             const recommendedVersion = getRecommendedVersionForWp(compatData, pkgName, minWp);
-            issues.push({
+            const issue: IncompatibleIssue = {
                 type: 'incompatible',
                 pkgName,
                 installedVersion: resolvedVersion,
                 requiredWp,
                 minWp,
                 recommendedVersion,
-            });
+            };
+            issues.push(issue);
         }
     }
 
     return issues;
 }
 
-module.exports = { analyze, analyzeRemote, resolveRangeInCompatData };
+export { resolveRangeInCompatData };

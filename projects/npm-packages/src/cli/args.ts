@@ -1,10 +1,9 @@
-'use strict';
+import path from 'node:path';
+import type { CliOptions } from '../types/index.js';
 
-const path = require('node:path');
-
-function parseArgs(argv) {
+export function parseArgs(argv: string[]): CliOptions {
     const args = argv.slice(2); // drop node + script
-    const options = {
+    const options: CliOptions = {
         dir: process.cwd(),
         unexpectedArgs: [],
         infoPackages: [],
@@ -60,7 +59,3 @@ function parseArgs(argv) {
 
     return options;
 }
-
-module.exports = {
-    parseArgs,
-};

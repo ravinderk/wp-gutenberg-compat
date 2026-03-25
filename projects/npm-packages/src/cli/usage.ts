@@ -1,6 +1,4 @@
-'use strict';
-
-const USAGE = `
+export const USAGE = `
 Usage: wp-gutenberg-compat <command> [options]
 
 Commands:
@@ -36,7 +34,3 @@ Examples:
     wp-gutenberg-compat open @wordpress/block-editor
     wp-gutenberg-compat open @wordpress/block-editor --wp 6.5
 `.trim();
-
-module.exports = {
-    USAGE,
-};

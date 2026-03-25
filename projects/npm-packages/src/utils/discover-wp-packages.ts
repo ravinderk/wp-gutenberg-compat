@@ -1,17 +1,14 @@
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 /** Module-level cache keyed by resolved project root. */
-const cache = new Map();
+const cache = new Map<string, string[]>();
 
 /**
  * Walk up from startDir to find the nearest directory containing package.json.
  * Returns that directory path, or null if not found.
- *
- * @param {string} startDir
- * @returns {string|null}
  */
-function findProjectRoot(startDir) {
+export function findProjectRoot(startDir: string): string | null {
     let dir = startDir;
     while (true) {
         if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
@@ -29,31 +26,29 @@ function findProjectRoot(startDir) {
  * Emits console.warn (with '[wp-gutenberg-compat]' prefix) only when the file
  * exists but contains invalid JSON.
  * Results are cached by resolved project root for the duration of the process.
- *
- * @param {string} startDir  Directory to start the upward search from.
- * @returns {string[]}
  */
-function discoverWpPackages(startDir) {
+export function discoverWpPackages(startDir: string): string[] {
     const root = findProjectRoot(startDir);
     if (!root) return [];
 
-    if (cache.has(root)) return cache.get(root);
+    const cached = cache.get(root);
+    if (cached !== undefined) return cached;
 
     const pkgPath = path.join(root, 'package.json');
-    let pkg;
+    let pkg: { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
     try {
-        pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as typeof pkg;
     } catch (err) {
-        // Only warn when the file exists but JSON is malformed
-        if (err.code !== 'ENOENT') {
-            console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${err.message}`);
+        const nodeErr = err as NodeJS.ErrnoException;
+        if (nodeErr.code !== 'ENOENT') {
+            console.warn(`[wp-gutenberg-compat] Could not parse ${pkgPath}: ${nodeErr.message}`);
         }
         cache.set(root, []);
         return [];
     }
 
-    const deps = Object.keys(pkg.dependencies || {});
-    const devDeps = Object.keys(pkg.devDependencies || {});
+    const deps = Object.keys(pkg.dependencies ?? {});
+    const devDeps = Object.keys(pkg.devDependencies ?? {});
     const wpPkgs = [...new Set([...deps, ...devDeps])].filter((k) => k.startsWith('@wordpress/'));
     cache.set(root, wpPkgs);
     return wpPkgs;
@@ -62,8 +57,6 @@ function discoverWpPackages(startDir) {
 /**
  * Clear the module-level cache (for testing only).
  */
-function clearDiscoverCache() {
+export function clearDiscoverCache(): void {
     cache.clear();
 }
-
-module.exports = { discoverWpPackages, clearDiscoverCache, findProjectRoot };

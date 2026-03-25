@@ -1,22 +1,22 @@
-'use strict';
+import { app } from '../../app.js';
+import { buildAsciiTable } from '../table.js';
+import { loadCompatData } from '../../utils/compat-data.js';
+import { findWpVersionFromHeader } from '../../utils/wp-header.js';
+import type { CliOptions } from '../../types/index.js';
 
-const { app } = require('../../app.js');
-const { buildAsciiTable } = require('../table.js');
-const { loadCompatData } = require('../../utils/compat-data.js');
-const { findWpVersionFromHeader } = require('../../utils/wp-header.js');
-
-function runInfo(options) {
+export function runInfo(options: CliOptions): number {
     const compatData = loadCompatData(options.dataPath);
 
     if (!options.infoPackages || options.infoPackages.length === 0) {
         // Mode 1: no arguments — display tool version, supported package managers, and WP versions
-        const pkg = require('../../../package.json');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pkg = require('../../../package.json') as { version: string };
         const version = pkg.version;
 
         const generated = compatData.generated ? compatData.generated.slice(0, 10) : 'unknown';
-        const lastGutenbergTag = compatData.lastGutenbergTag || 'unknown';
+        const lastGutenbergTag = compatData.lastGutenbergTag ?? 'unknown';
 
-        const lines = [];
+        const lines: string[] = [];
         lines.push(`wp-gutenberg-compat version: ${version}`);
         lines.push('');
 
@@ -24,7 +24,7 @@ function runInfo(options) {
         const { version: wpVersion, projectType, pluginFile } = findWpVersionFromHeader(startDir);
         if (projectType) {
             const name = projectType === 'theme' ? 'style.css' : pluginFile;
-            const label = (text) => `  ${text.padEnd(18)}`;
+            const label = (text: string) => `  ${text.padEnd(18)}`;
             lines.push('Project');
             lines.push('-------');
             lines.push(`${label('Type:')}${projectType}`);
@@ -82,5 +82,3 @@ function runInfo(options) {
     reporter.print();
     return exitCode;
 }
-
-module.exports = { runInfo };
