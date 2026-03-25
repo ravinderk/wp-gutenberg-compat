@@ -6,23 +6,25 @@ const steps = [
         desc: 'Scans your plugin\'s main PHP file or theme\'s style.css for the "Requires at least" field to determine the minimum WordPress version you\'ve declared.',
         code: `/*
  * Plugin Name: My Block Plugin
- * Requires at least: 6.5   ← reads this
+ * Requires at least: 6.3   ← reads this
  */`,
     },
     {
         num: '02',
         title: 'Compares installed packages',
-        desc: 'Looks up the @wordpress/* packages installed in your node_modules and cross-references them against the exact package versions bundled with that WordPress release.',
-        code: `@wordpress/block-editor
-  installed:  14.2.0  (WordPress 6.8)
-  required:   12.9.0  (WordPress 6.5)
-  status:     ✗ incompatible`,
+        desc: 'Prints a compatibility table for installed @wordpress/* packages and flags entries that need a newer WordPress version than your plugin supports.',
+        code: `Compatibility issues (8)
+    Package                      Installed  Needs WP  Plugin Min
+    @wordpress/components        30.7.0     6.9       6.3
+    @wordpress/icons             10.32.0    6.8       6.3
+    @wordpress/scripts           30.25.0    6.8       6.3
+    status:                      ✗ incompatible`,
     },
     {
         num: '03',
         title: 'Installs the right versions',
         desc: 'One command downgrades all mismatched packages to the versions that ship with your minimum WordPress version. Your IDE now only knows about APIs that actually exist.',
-        code: `$ npx wp-gutenberg-compat install
+        code: `$ npx @ravi.nder/wp-gutenberg-compat@latest install
 ✓ Installing compatible versions...
 ✓ @wordpress/block-editor@12.9.0
 ✓ @wordpress/data@9.28.0
@@ -55,7 +57,7 @@ const steps = [
                     </div>
                     <!-- Code side -->
                     <div class={`bg-[var(--color-surface-dark)] p-10 flex items-center ${i % 2 === 1 ? 'lg:order-first' : ''}`}>
-                        <pre class="font-[family-name:var(--font-mono)] text-sm text-white/50 leading-7 whitespace-pre-wrap overflow-auto w-full"><code set:html={step.code.replace(/✓/g, '<span style="color: #4ade80">✓</span>').replace(/✗/g, '<span style="color: #f87171">✗</span>').replace(/6\.5/g, '<span style="color: #fbbf24">6.5</span>').replace(/14\.2\.0/g, '<span style="color: #f87171">14.2.0</span>').replace(/12\.9\.0/g, '<span style="color: #4ade80">12.9.0</span>')}></code></pre>
+                        <pre class="font-[family-name:var(--font-mono)] text-sm text-white/50 leading-7 whitespace-pre-wrap overflow-auto w-full"><code set:html={step.code.replace(/✓/g, '<span style="color: #4ade80">✓</span>').replace(/✗/g, '<span style="color: #f87171">✗</span>').replace(/6\.3/g, '<span style="color: #fbbf24">6.3</span>').replace(/6\.8/g, '<span style="color: #f87171">6.8</span>').replace(/6\.9/g, '<span style="color: #f87171">6.9</span>').replace(/30\.7\.0/g, '<span style="color: #f87171">30.7.0</span>').replace(/10\.32\.0/g, '<span style="color: #f87171">10.32.0</span>').replace(/30\.25\.0/g, '<span style="color: #f87171">30.25.0</span>')}></code></pre>
                     </div>
                 </div>
             ))}

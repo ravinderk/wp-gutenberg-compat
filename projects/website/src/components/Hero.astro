@@ -1,17 +1,12 @@
 ---
 ---
 
-<section class="relative min-h-screen flex flex-col items-center justify-center pt-24 overflow-hidden">
+<section class="relative min-h-screen flex flex-col items-center justify-center pt-28 pb-16 overflow-hidden">
     <!-- Grid background -->
     <div class="absolute inset-0 grid-bg opacity-30"></div>
 
     <div class="relative z-10 mx-auto max-w-4xl px-6 text-center">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-[var(--color-muted)]">
-            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-green)] animate-pulse"></span>
-            Works with WordPress 5.8 – 6.8
-        </div>
-
+        
         <!-- Headline -->
         <h1 class="text-5xl sm:text-6xl md:text-7xl text-[var(--color-text)] leading-[1.05] tracking-[-0.05em] mb-6 font-normal">
             Stop shipping
@@ -54,13 +49,13 @@
             <div class="p-5 font-[family-name:var(--font-mono)] text-sm leading-7 space-y-1">
                 <p class="terminal-prompt text-white/90">npx @ravi.nder/wp-gutenberg-compat@latest analyze</p>
                 <p class="text-white/30">&nbsp;</p>
-                <p class="text-white/90">Detected minimum WP version: <span class="text-amber-400">6.5</span></p>
-                <p class="text-white/50">Scanning @wordpress/* packages...</p>
-                <p class="text-white/30">&nbsp;</p>
-                <p class="text-red-400">✗ @wordpress/block-editor  installed: 14.2.0  compat: 12.9.0</p>
-                <p class="text-red-400">✗ @wordpress/data          installed: 10.7.0  compat: 9.28.0</p>
-                <p class="text-white/30">&nbsp;</p>
-                <p class="text-amber-400">2 incompatible packages found. Run `install` to fix.</p>
+                <p class="text-red-400">Compatibility issues (8)</p>
+                <p class="text-white/40">Package                     Installed   Needs WP   Plugin Min</p>
+                <p class="text-red-400">@wordpress/components       30.7.0      6.9        6.3</p>
+                <p class="text-red-400">@wordpress/icons            10.32.0     6.8        6.3</p>
+                <p class="text-red-400">@wordpress/scripts          30.25.0     6.8        6.3</p>
+                <p class="text-white/30">...</p>
+                <p class="text-amber-400">Run `install` to apply compatible versions.</p>
             </div>
         </div>
     </div>

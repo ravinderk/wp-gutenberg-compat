@@ -36,6 +36,11 @@ for (const line of raw.split('\n')) {
     }
 }
 
+function formatDate(iso: string) {
+    const [year, month, day] = iso.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 function categoryColor(name: string) {
     switch (name) {
         case 'Added': return 'text-[var(--color-green)]';
@@ -53,31 +58,51 @@ function categoryBadgeBg(name: string) {
         default: return 'bg-gray-50 border-gray-200';
     }
 }
+
+function categoryIcon(name: string) {
+    switch (name) {
+        case 'Added': return '＋';
+        case 'Changed': return '↻';
+        case 'Fixed': return '✓';
+        default: return '·';
+    }
+}
+
 ---
 
 <Layout title="Changelog — wp-gutenberg-compat" description="Release history for wp-gutenberg-compat CLI tool.">
     <Nav />
     <main class="pt-24 pb-16 px-6">
         <div class="mx-auto max-w-3xl">
-            <h1 class="text-3xl font-bold tracking-tight text-[var(--color-text)]">Changelog</h1>
+            <div class="flex items-center gap-3 flex-wrap">
+                <h1 class="text-3xl font-bold tracking-tight text-[var(--color-text)]">Changelog</h1>
+                {sections[0] && (
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--color-accent)] text-white text-xs font-medium">
+                        Latest: v{sections[0].version}
+                    </span>
+                )}
+            </div>
             <p class="mt-2 text-[var(--color-muted)] text-sm">
                 All notable changes to the
                 <a href="https://www.npmjs.com/package/@ravi.nder/wp-gutenberg-compat" class="underline hover:text-[var(--color-text)] transition-colors">npm package</a>.
             </p>
-
             <div class="mt-10 space-y-12">
-                {sections.map((section) => (
+                {sections.map((section, idx) => (
                     <article class="relative pl-6 border-l-2 border-[var(--color-border)]">
-                        <div class="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-[var(--color-accent)] border-2 border-white" />
+                        <div class={`absolute -left-[7px] top-1 w-3 h-3 rounded-full border-2 border-white ${idx === 0 ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border)]'}`} />
                         <div class="flex items-baseline gap-3 flex-wrap">
                             <h2 class="text-lg font-semibold text-[var(--color-text)]">v{section.version}</h2>
-                            <time class="text-xs text-[var(--color-muted)] tabular-nums">{section.date}</time>
+                            {idx === 0 && (
+                                <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-[var(--color-accent)] text-white leading-none">Latest</span>
+                            )}
+                            <time class="text-xs text-[var(--color-muted)] tabular-nums">{formatDate(section.date)}</time>
                         </div>
 
                         <div class="mt-4 space-y-4">
                             {section.categories.map((cat) => (
                                 <div>
-                                    <span class={`inline-block text-xs font-medium px-2 py-0.5 rounded-full border ${categoryBadgeBg(cat.name)} ${categoryColor(cat.name)}`}>
+                                    <span class={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${categoryBadgeBg(cat.name)} ${categoryColor(cat.name)}`}>
+                                        <span aria-hidden="true">{categoryIcon(cat.name)}</span>
                                         {cat.name}
                                     </span>
                                     <ul class="mt-2 space-y-1.5">
