@@ -8,12 +8,15 @@
         "lint": "eslint .",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "prepare": "husky",
+        "clean:all": "rm -rf projects/npm-packages/dist projects/website/dist projects/website/.astro",
+        "rebuild:all": "npm run clean:all && npm run pkg:build && npm run web:build",
+        "pkg:build": "npm run build --workspace=projects/npm-packages",
         "pkg:test": "npm run test --workspace=projects/npm-packages",
         "pkg:lint": "npm run lint --workspace=projects/npm-packages",
         "pkg:generate": "npm run generate --workspace=projects/npm-packages",
         "web:dev": "npm run dev --workspace=projects/website",
-        "web:build": "npm run build --workspace=projects/website"
+        "web:build": "npm run build --workspace=projects/website",
+        "prepare": "husky"
     },
     "devDependencies": {
         "@eslint/compat": "^2.0.3",

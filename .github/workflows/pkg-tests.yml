@@ -2,10 +2,14 @@ name: '[NPM Package] Tests'
 
 on:
     pull_request:
+        paths:
+            - 'projects/npm-packages/**'
     push:
         branches:
             - master
             - develop
+        paths:
+            - 'projects/npm-packages/**'
 
 jobs:
     test:
@@ -27,3 +31,6 @@ jobs:
 
             - name: Run tests
               run: npm run pkg:test
+
+            - name: Type check
+              run: npm run typecheck --workspace=projects/npm-packages

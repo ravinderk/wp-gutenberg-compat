@@ -160,4 +160,97 @@ describe('runInfo', () => {
         const parsed = cli.parseArgs(['node', 'src/cli.js', 'info']);
         expect(parsed.infoPackages).toEqual([]);
     });
+
+    it('mode 1 (no packages): shows Project section for a plugin directory', () => {
+        const { tempDir, dataPath } = setupDataFile();
+        try {
+            const pluginDir = path.join(tempDir, 'my-plugin');
+            fs.mkdirSync(pluginDir);
+            fs.writeFileSync(path.join(pluginDir, 'package.json'), JSON.stringify({ name: 'my-plugin' }));
+            fs.writeFileSync(
+                path.join(pluginDir, 'my-plugin.php'),
+                '<?php\n/**\n * Plugin Name: My Plugin\n * Requires at least: 6.5\n */\n',
+            );
+            const { exitCode, stdout } = captureOutput(() =>
+                cli.runInfo({ infoPackages: [], dataPath, dir: pluginDir }),
+            );
+            expect(exitCode).toBe(0);
+            const output = stdout.join('\n');
+            expect(output).toContain('Project');
+            expect(output).toContain('Type:');
+            expect(output).toContain('plugin');
+            expect(output).toContain('Name:');
+            expect(output).toContain('my-plugin.php');
+            expect(output).toContain('Requires at least:');
+            expect(output).toContain('6.5');
+            expect(output).toMatch(/Requires at least:\s+6\.5/);
+        } finally {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it('mode 1 (no packages): shows Project section for a theme directory', () => {
+        const { tempDir, dataPath } = setupDataFile();
+        try {
+            const themeDir = path.join(tempDir, 'my-theme');
+            fs.mkdirSync(themeDir);
+            fs.writeFileSync(path.join(themeDir, 'package.json'), JSON.stringify({ name: 'my-theme' }));
+            fs.writeFileSync(
+                path.join(themeDir, 'style.css'),
+                '/*\nTheme Name: My Theme\nRequires at least: 6.4\n*/\n',
+            );
+            const { exitCode, stdout } = captureOutput(() =>
+                cli.runInfo({ infoPackages: [], dataPath, dir: themeDir }),
+            );
+            expect(exitCode).toBe(0);
+            const output = stdout.join('\n');
+            expect(output).toContain('Project');
+            expect(output).toContain('Type:');
+            expect(output).toContain('theme');
+            expect(output).toContain('Name:');
+            expect(output).toContain('style.css');
+            expect(output).toContain('Requires at least:');
+            expect(output).toContain('6.4');
+        } finally {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it('mode 1 (no packages): shows Requires at least only when present in header', () => {
+        const { tempDir, dataPath } = setupDataFile();
+        try {
+            const pluginDir = path.join(tempDir, 'bare-plugin');
+            fs.mkdirSync(pluginDir);
+            fs.writeFileSync(path.join(pluginDir, 'package.json'), JSON.stringify({ name: 'bare-plugin' }));
+            fs.writeFileSync(path.join(pluginDir, 'bare-plugin.php'), '<?php\n/**\n * Plugin Name: Bare Plugin\n */\n');
+            const { exitCode, stdout } = captureOutput(() =>
+                cli.runInfo({ infoPackages: [], dataPath, dir: pluginDir }),
+            );
+            expect(exitCode).toBe(0);
+            const output = stdout.join('\n');
+            expect(output).toContain('plugin');
+            expect(output).toContain('bare-plugin.php');
+            expect(output).not.toContain('Requires at least:');
+        } finally {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it('mode 1 (no packages): omits Project section when not in a WP project', () => {
+        const { tempDir, dataPath } = setupDataFile();
+        try {
+            const nonWpDir = path.join(tempDir, 'non-wp');
+            fs.mkdirSync(nonWpDir);
+            fs.writeFileSync(path.join(nonWpDir, 'package.json'), JSON.stringify({ name: 'non-wp' }));
+            const { exitCode, stdout } = captureOutput(() =>
+                cli.runInfo({ infoPackages: [], dataPath, dir: nonWpDir }),
+            );
+            expect(exitCode).toBe(0);
+            const output = stdout.join('\n');
+            expect(output).not.toContain('Project');
+            expect(output).not.toContain('Type:');
+        } finally {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    });
 });

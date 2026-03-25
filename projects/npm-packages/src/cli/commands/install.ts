@@ -1,16 +1,12 @@
-'use strict';
+import { app } from '../../app.js';
+import { runInstall } from '../install-exec.js';
+import { resolveProjectContext } from '../helpers/project-context.js';
+import { buildMissingPackageManagerError, buildUnexpectedInstallArgsError } from '../helpers/install-validation.js';
+import { formatNoAutomaticDowngradeMessage, buildInstallReport } from '../output.js';
+import { runAnalyze } from './analyze.js';
+import type { CliOptions } from '../../types/index.js';
 
-const { app } = require('../../app.js');
-const { runInstall } = require('../install-exec.js');
-const { resolveProjectContext } = require('../helpers/project-context.js');
-const {
-    buildMissingPackageManagerError,
-    buildUnexpectedInstallArgsError,
-} = require('../helpers/install-validation.js');
-const { formatNoAutomaticDowngradeMessage, buildInstallReport } = require('../output.js');
-const { runAnalyze } = require('./analyze.js');
-
-async function runInstallCommand(options) {
+export async function runInstallCommand(options: CliOptions): Promise<number> {
     if (options.unexpectedArgs.length > 0) {
         const reporter = app.make('Reporter');
         buildUnexpectedInstallArgsError(reporter, options.unexpectedArgs);
@@ -53,5 +49,3 @@ async function runInstallCommand(options) {
 
     return 0;
 }
-
-module.exports = { runInstallCommand };

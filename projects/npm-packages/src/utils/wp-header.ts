@@ -1,15 +1,13 @@
-const path = require('node:path');
-const fs = require('node:fs');
-const { findProjectRoot } = require('./discover-wp-packages.js');
+import path from 'node:path';
+import fs from 'node:fs';
+import { findProjectRoot } from './discover-wp-packages.js';
+import type { WpHeaderResult } from '../types/index.js';
 
 /**
  * Scan the project root for a main plugin PHP file or theme style.css
  * and read its "Requires at least" header.
- *
- * @param {string} startDir
- * @returns {{ version: string|null, projectType: 'plugin'|'theme'|null, pluginFile: string|null }}
  */
-function findWpVersionFromHeader(startDir) {
+export function findWpVersionFromHeader(startDir: string): WpHeaderResult {
     const dir = findProjectRoot(startDir);
     if (!dir) return { version: null, projectType: null, pluginFile: null };
 
@@ -48,21 +46,15 @@ function findWpVersionFromHeader(startDir) {
 
 /**
  * Read the installed version of a package from node_modules.
- *
- * @param {string} pkgName
- * @param {string} startDir
- * @returns {string|null}
  */
-function getInstalledVersion(pkgName, startDir) {
+export function getInstalledVersion(pkgName: string, startDir: string): string | null {
     try {
         const pkgJsonPath = require.resolve(`${pkgName}/package.json`, {
             paths: [startDir],
         });
-        const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-        return pkg.version || null;
+        const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')) as { version?: string };
+        return pkg.version ?? null;
     } catch {
         return null;
     }
 }
-
-module.exports = { findWpVersionFromHeader, getInstalledVersion };

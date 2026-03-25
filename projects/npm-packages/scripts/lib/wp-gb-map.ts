@@ -9,7 +9,7 @@ const REPO = 'WordPress/gutenberg';
  * Returns a map like { "6.8": "20.4", … } (only entries with WP >= 6.4).
  * Returns an empty object on failure so callers can fall back to existing data.
  */
-export async function fetchUpstreamWpGbEntries() {
+export async function fetchUpstreamWpGbEntries(): Promise<Record<string, string>> {
     const url = `${RAW_GH}/${REPO}/trunk/docs/contributors/versions-in-wordpress.md`;
     try {
         const md = await fetchText(url);
@@ -17,7 +17,7 @@ export async function fetchUpstreamWpGbEntries() {
         console.log(`Parsed ${Object.keys(map).length} entries from upstream WP↔GB table`);
         return map;
     } catch (err) {
-        console.warn(`Could not fetch upstream WP↔GB map: ${err.message}`);
+        console.warn(`Could not fetch upstream WP↔GB map: ${(err as Error).message}`);
         return {};
     }
 }
@@ -26,8 +26,8 @@ export async function fetchUpstreamWpGbEntries() {
  * Parse the markdown table from versions-in-wordpress.md.
  * Expected rows like: | [WordPress 6.8](https://…) | [Gutenberg 20.4](https://…) |
  */
-export function parseWpGbMarkdownTable(md) {
-    const map = {};
+export function parseWpGbMarkdownTable(md: string): Record<string, string> {
+    const map: Record<string, string> = {};
     const rowRe = /\|\s*\[?\s*WordPress\s+([\d.]+)\s*\]?[^|]*\|\s*\[?\s*Gutenberg\s+([\d.]+)\s*\]?/gi;
     let match;
     while ((match = rowRe.exec(md)) !== null) {
