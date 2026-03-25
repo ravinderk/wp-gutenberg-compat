@@ -167,7 +167,10 @@ describe('runInfo', () => {
             const pluginDir = path.join(tempDir, 'my-plugin');
             fs.mkdirSync(pluginDir);
             fs.writeFileSync(path.join(pluginDir, 'package.json'), JSON.stringify({ name: 'my-plugin' }));
-            fs.writeFileSync(path.join(pluginDir, 'my-plugin.php'), '<?php\n/**\n * Plugin Name: My Plugin\n * Requires at least: 6.5\n */\n');
+            fs.writeFileSync(
+                path.join(pluginDir, 'my-plugin.php'),
+                '<?php\n/**\n * Plugin Name: My Plugin\n * Requires at least: 6.5\n */\n',
+            );
             const { exitCode, stdout } = captureOutput(() =>
                 cli.runInfo({ infoPackages: [], dataPath, dir: pluginDir }),
             );
@@ -180,6 +183,7 @@ describe('runInfo', () => {
             expect(output).toContain('my-plugin.php');
             expect(output).toContain('Requires at least:');
             expect(output).toContain('6.5');
+            expect(output).toMatch(/Requires at least:\s+6\.5/);
         } finally {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
@@ -191,7 +195,10 @@ describe('runInfo', () => {
             const themeDir = path.join(tempDir, 'my-theme');
             fs.mkdirSync(themeDir);
             fs.writeFileSync(path.join(themeDir, 'package.json'), JSON.stringify({ name: 'my-theme' }));
-            fs.writeFileSync(path.join(themeDir, 'style.css'), '/*\nTheme Name: My Theme\nRequires at least: 6.4\n*/\n');
+            fs.writeFileSync(
+                path.join(themeDir, 'style.css'),
+                '/*\nTheme Name: My Theme\nRequires at least: 6.4\n*/\n',
+            );
             const { exitCode, stdout } = captureOutput(() =>
                 cli.runInfo({ infoPackages: [], dataPath, dir: themeDir }),
             );

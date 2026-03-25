@@ -24,7 +24,7 @@ export function runInfo(options: CliOptions): number {
         const { version: wpVersion, projectType, pluginFile } = findWpVersionFromHeader(startDir);
         if (projectType) {
             const name = projectType === 'theme' ? 'style.css' : pluginFile;
-            const label = (text: string) => `  ${text.padEnd(18)}`;
+            const label = (text: string) => `  ${text.padEnd(20)}`;
             lines.push('Project');
             lines.push('-------');
             lines.push(`${label('Type:')}${projectType}`);
