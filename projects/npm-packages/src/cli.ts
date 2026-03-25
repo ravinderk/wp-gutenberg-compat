@@ -1,15 +1,13 @@
 #!/usr/bin/env node
-'use strict';
+import { app } from './app.js';
+import { parseArgs } from './cli/args.js';
+import { USAGE } from './cli/usage.js';
+import { buildInstallArgs, buildInstallCommand, detectPackageManager } from './cli/install-exec.js';
+import { collectRecommendedInstallSpecs } from './cli/install-planning.js';
+import { formatIssue, buildInstallReport } from './cli/output.js';
+import { runAnalyze, runInfo, runInstallCommand, runOpen } from './cli/commands.js';
 
-const { app } = require('./app.js');
-const { parseArgs } = require('./cli/args.js');
-const { USAGE } = require('./cli/usage.js');
-const { buildInstallArgs, buildInstallCommand, detectPackageManager } = require('./cli/install-exec.js');
-const { collectRecommendedInstallSpecs } = require('./cli/install-planning.js');
-const { formatIssue, buildInstallReport } = require('./cli/output.js');
-const { runAnalyze, runInfo, runInstallCommand, runOpen } = require('./cli/commands.js');
-
-function main() {
+export function main(): void {
     const [, , command, ...rest] = process.argv;
 
     if (!command || command === '--help' || command === '-h') {
@@ -49,14 +47,13 @@ if (require.main === module) {
     main();
 }
 
-module.exports = {
+export {
     app,
     buildInstallArgs,
     buildInstallCommand,
     collectRecommendedInstallSpecs,
     detectPackageManager,
     formatIssue,
-    main,
     parseArgs,
     buildInstallReport,
     runAnalyze,

@@ -5,21 +5,37 @@ const GITHUB_API = 'https://api.github.com';
 const RAW_GH = 'https://raw.githubusercontent.com';
 const REPO = 'WordPress/gutenberg';
 
+interface GithubTag {
+    name: string;
+    commit: { sha: string };
+}
+
+interface GithubDirEntry {
+    type: string;
+    name: string;
+}
+
+interface PackageJson {
+    name?: string;
+    version?: string;
+    private?: boolean;
+}
+
 /** Cache of discovered package directories per Gutenberg tag. */
-const packageListCache = new Map();
+const packageListCache = new Map<string, string[]>();
 
 /**
  * Fetch all Gutenberg tags from GitHub, filtering to release tags (vNN.N.N).
  * Returns an array of { name, sha } sorted descending by version.
  */
-export async function fetchGutenbergTags() {
-    const tags = [];
+export async function fetchGutenbergTags(): Promise<{ name: string; sha: string }[]> {
+    const tags: { name: string; sha: string }[] = [];
     let page = 1;
     const perPage = 100;
 
     while (true) {
         const url = `${GITHUB_API}/repos/${REPO}/tags?per_page=${perPage}&page=${page}`;
-        const batch = await fetchJSON(url);
+        const batch = await fetchJSON<GithubTag[]>(url);
         if (batch.length === 0) break;
         for (const tag of batch) {
             if (/^v\d+\.\d+\.\d+$/.test(tag.name)) {
@@ -38,11 +54,12 @@ export async function fetchGutenbergTags() {
  * Discover all package directory names under packages/ for a given Gutenberg tag.
  * Uses the GitHub Contents API and caches results per tag.
  */
-async function discoverPackageDirs(tagName) {
-    if (packageListCache.has(tagName)) return packageListCache.get(tagName);
+async function discoverPackageDirs(tagName: string): Promise<string[]> {
+    const cached = packageListCache.get(tagName);
+    if (cached !== undefined) return cached;
 
     const url = `${GITHUB_API}/repos/${REPO}/contents/packages?ref=${tagName}`;
-    const entries = await fetchJSON(url);
+    const entries = await fetchJSON<GithubDirEntry[]>(url);
     const dirs = entries.filter((entry) => entry.type === 'dir').map((entry) => entry.name);
 
     packageListCache.set(tagName, dirs);
@@ -54,9 +71,9 @@ async function discoverPackageDirs(tagName) {
  * return their versions. Excludes private packages and directories without
  * a valid package.json.
  */
-export async function fetchPackageVersionsForTag(tagName) {
+export async function fetchPackageVersionsForTag(tagName: string): Promise<Record<string, string>> {
     const dirs = await discoverPackageDirs(tagName);
-    const versions = {};
+    const versions: Record<string, string> = {};
 
     const BATCH_SIZE = 20;
     for (let i = 0; i < dirs.length; i += BATCH_SIZE) {
@@ -66,7 +83,7 @@ export async function fetchPackageVersionsForTag(tagName) {
                 const url = `${RAW_GH}/${REPO}/${tagName}/packages/${dir}/package.json`;
                 try {
                     const text = await fetchText(url);
-                    const json = JSON.parse(text);
+                    const json = JSON.parse(text) as PackageJson;
                     if (json.private || !json.name || !json.name.startsWith('@wordpress/') || !json.version) {
                         return;
                     }

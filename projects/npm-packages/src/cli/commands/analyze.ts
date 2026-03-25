@@ -1,12 +1,11 @@
-'use strict';
+import { app } from '../../app.js';
+import { analyze, analyzeRemote } from '../../analyze.js';
+import { collectRecommendedInstallSpecs } from '../install-planning.js';
+import { resolveProjectContext } from '../helpers/project-context.js';
+import { formatIssuesReport, buildSuggestedInstallCommands, buildRemoteSuggestedAction } from '../output.js';
+import type { CliOptions, AnalyzeResult } from '../../types/index.js';
 
-const { app } = require('../../app.js');
-const { analyze, analyzeRemote } = require('../../analyze.js');
-const { collectRecommendedInstallSpecs } = require('../install-planning.js');
-const { resolveProjectContext } = require('../helpers/project-context.js');
-const { formatIssuesReport, buildSuggestedInstallCommands, buildRemoteSuggestedAction } = require('../output.js');
-
-async function runAnalyze(options) {
+export async function runAnalyze(options: CliOptions): Promise<AnalyzeResult> {
     if (options.remote && !options.wp) {
         const reporter = app.make('Reporter');
         reporter.error('--remote requires --wp <version>');
@@ -19,10 +18,10 @@ async function runAnalyze(options) {
     let issues;
     if (options.remote) {
         try {
-            issues = await analyzeRemote(options);
+            issues = await analyzeRemote({ remote: options.remote, wp: options.wp!, dataPath: options.dataPath });
         } catch (err) {
             const reporter = app.make('Reporter');
-            reporter.error(err.message);
+            reporter.error((err as Error).message);
             reporter.print();
             return { exitCode: 1, issues: [], packageSpecs: [] };
         }
@@ -53,5 +52,3 @@ async function runAnalyze(options) {
     reporter.print();
     return { exitCode: 1, issues, packageSpecs };
 }
-
-module.exports = { runAnalyze };

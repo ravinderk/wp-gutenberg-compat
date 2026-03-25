@@ -2,15 +2,19 @@ import { sleep } from './utils.js';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-function headers() {
-    const h = { Accept: 'application/vnd.github+json' };
+function headers(): Record<string, string> {
+    const h: Record<string, string> = { Accept: 'application/vnd.github+json' };
     if (GITHUB_TOKEN) {
         h.Authorization = `Bearer ${GITHUB_TOKEN}`;
     }
     return h;
 }
 
-async function fetchWithRetry(url, { useAuth = false, maxAttempts = 3 } = {}, attempt = 1) {
+async function fetchWithRetry(
+    url: string,
+    { useAuth = false, maxAttempts = 3 }: { useAuth?: boolean; maxAttempts?: number } = {},
+    attempt = 1,
+): Promise<Response> {
     const res = await fetch(url, useAuth ? { headers: headers() } : undefined);
 
     if (res.status === 429 || res.status === 403) {
@@ -30,12 +34,12 @@ async function fetchWithRetry(url, { useAuth = false, maxAttempts = 3 } = {}, at
     return res;
 }
 
-export async function fetchJSON(url) {
+export async function fetchJSON<T = unknown>(url: string): Promise<T> {
     const res = await fetchWithRetry(url, { useAuth: true });
-    return res.json();
+    return res.json() as Promise<T>;
 }
 
-export async function fetchText(url) {
+export async function fetchText(url: string): Promise<string> {
     const res = await fetchWithRetry(url);
     return res.text();
 }

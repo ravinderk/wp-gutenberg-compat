@@ -7,7 +7,7 @@
  * and writes the result to src/data/compat-data.json.
  *
  * Usage:
- *   GITHUB_TOKEN=ghp_... node scripts/generate.js
+ *   GITHUB_TOKEN=ghp_... tsx scripts/generate.ts
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -17,22 +17,29 @@ import path from 'node:path';
 import { tagBaseVersion, invertMap } from './lib/utils.js';
 import { fetchUpstreamWpGbEntries } from './lib/wp-gb-map.js';
 import { fetchGutenbergTags, fetchPackageVersionsForTag } from './lib/gutenberg.js';
+import type { CompatData } from '../src/types/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const DATA_FILE = path.join(ROOT, 'src', 'data', 'compat-data.json');
 
-async function main() {
+async function main(): Promise<void> {
     // 1. Load existing compat data
-    let existing;
+    let existing: CompatData;
     try {
-        existing = JSON.parse(await readFile(DATA_FILE, 'utf8'));
+        existing = JSON.parse(await readFile(DATA_FILE, 'utf8')) as CompatData;
     } catch {
-        existing = { generated: null, lastGutenbergTag: null, scrapedVersions: [], wpGutenbergMap: {}, packages: {} };
+        existing = {
+            generated: null,
+            lastGutenbergTag: null,
+            scrapedVersions: [],
+            wpGutenbergMap: {},
+            packages: {},
+        };
     }
 
     // 2. Merge WP ↔ GB map: start from existing, add any new upstream entries
-    const wpGbMap = { ...(existing.wpGutenbergMap ?? {}) };
+    const wpGbMap: Record<string, string> = { ...(existing.wpGutenbergMap ?? {}) };
     const upstream = await fetchUpstreamWpGbEntries();
     let newEntries = 0;
     for (const [wp, gb] of Object.entries(upstream)) {
@@ -55,8 +62,8 @@ async function main() {
     console.log('Fetching Gutenberg tags…');
     const allTags = await fetchGutenbergTags();
 
-    const seenBases = new Set();
-    const tagsToScrape = [];
+    const seenBases = new Set<string>();
+    const tagsToScrape: { name: string; sha: string; gbBase: string }[] = [];
     for (const tag of allTags) {
         const base = tagBaseVersion(tag.name);
         if (relevantGbVersions.has(base) && !seenBases.has(base)) {
@@ -66,7 +73,7 @@ async function main() {
     }
 
     // 5. Filter to only GB base versions not yet scraped
-    const alreadyScraped = new Set(existing.scrapedVersions ?? []);
+    const alreadyScraped = new Set<string>(existing.scrapedVersions ?? []);
     const tagsToProcess = tagsToScrape.filter((t) => !alreadyScraped.has(t.gbBase));
 
     if (tagsToProcess.length === 0) {
@@ -80,8 +87,8 @@ async function main() {
 
     // 6. Scrape package versions for each new tag and merge with existing data
     const gbToWp = invertMap(wpGbMap);
-    const packages = existing.packages ?? {};
-    const newlyScraped = [];
+    const packages: CompatData['packages'] = existing.packages ?? {};
+    const newlyScraped: string[] = [];
 
     for (const tag of tagsToProcess) {
         console.log(`  ${tag.name} (GB ${tag.gbBase}, WP ${gbToWp[tag.gbBase]})…`);
@@ -106,7 +113,7 @@ async function main() {
             .sort()
             .map((k) => [k, packages[k]]),
     );
-    const data = {
+    const data: CompatData = {
         generated: new Date().toISOString(),
         lastGutenbergTag: latestTag ? latestTag.name : existing.lastGutenbergTag,
         scrapedVersions,

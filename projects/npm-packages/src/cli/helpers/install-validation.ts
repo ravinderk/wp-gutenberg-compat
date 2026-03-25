@@ -1,11 +1,11 @@
-'use strict';
+import type { Reporter } from '../output.js';
 
-function buildUnexpectedInstallArgsError(reporter, unexpectedArgs) {
+export function buildUnexpectedInstallArgsError(reporter: Reporter, unexpectedArgs: string[]): void {
     reporter.error(`The install command does not accept extra arguments: ${unexpectedArgs.join(', ')}`);
     reporter.info('  Usage: wp-gutenberg-compat install [--dir <path>]');
 }
 
-function buildMissingPackageManagerError(reporter) {
+export function buildMissingPackageManagerError(reporter: Reporter): void {
     reporter.error('Could not determine a single package manager from lockfiles.');
     reporter.info(
         [
@@ -14,8 +14,3 @@ function buildMissingPackageManagerError(reporter) {
         ].join('\n'),
     );
 }
-
-module.exports = {
-    buildMissingPackageManagerError,
-    buildUnexpectedInstallArgsError,
-};

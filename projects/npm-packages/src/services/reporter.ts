@@ -1,41 +1,44 @@
-'use strict';
+export type ReporterEntryType = 'error' | 'success' | 'warn' | 'info' | 'log';
 
-class Reporter {
-    constructor() {
-        this._entries = [];
-    }
+export interface ReporterEntry {
+    type: ReporterEntryType;
+    msg: string;
+}
 
-    error(msg) {
+export class Reporter {
+    private _entries: ReporterEntry[] = [];
+
+    error(msg: string): this {
         this._entries.push({ type: 'error', msg });
         return this;
     }
 
-    success(msg) {
+    success(msg: string): this {
         this._entries.push({ type: 'success', msg });
         return this;
     }
 
-    warn(msg) {
+    warn(msg: string): this {
         this._entries.push({ type: 'warn', msg });
         return this;
     }
 
-    info(msg) {
+    info(msg: string): this {
         this._entries.push({ type: 'info', msg });
         return this;
     }
 
-    block(...args) {
+    block(...args: string[]): this {
         this._entries.push({ type: 'info', msg: args.join('\n') });
         return this;
     }
 
-    log(msg) {
+    log(msg: string): this {
         this._entries.push({ type: 'log', msg });
         return this;
     }
 
-    print() {
+    print(): this {
         console.log('');
         for (const { type, msg } of this._entries) {
             switch (type) {
@@ -60,5 +63,3 @@ class Reporter {
         return this;
     }
 }
-
-module.exports = { Reporter };
