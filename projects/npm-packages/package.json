@@ -1,6 +1,6 @@
 {
     "name": "@ravi.nder/wp-gutenberg-compat",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "CLI tool to verify @wordpress/* packages are compatible with your plugin's minimum supported WordPress version",
     "bin": {
         "wp-gutenberg-compat": "./dist/cli.js"
@@ -12,6 +12,7 @@
     "scripts": {
         "dev:cli": "tsx src/cli.ts",
         "build": "tsc && node scripts/copy-data.js",
+        "prepack": "npm run build",
         "typecheck": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
         "generate": "tsx scripts/generate.ts",
         "test": "vitest run",
