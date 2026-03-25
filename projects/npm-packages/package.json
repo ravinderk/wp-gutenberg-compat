@@ -10,6 +10,7 @@
         "CHANGELOG.md"
     ],
     "scripts": {
+        "dev:cli": "tsx src/cli.ts",
         "build": "tsc && node scripts/copy-data.js",
         "typecheck": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
         "generate": "tsx scripts/generate.ts",
